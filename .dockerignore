@@ -1,0 +1,29 @@
+# Git関連
+.git
+.gitignore
+
+# Pythonのキャッシュ
+__pycache__/
+*.pyc
+*.pyo
+
+# 環境ファイル
+.env.prod
+.env.example
+
+# IDEやエディタ関連
+.vscode/
+.idea/
+
+# OS・ツールの生成ファイル
+.DS_Store
+Thumbs.db
+
+# テストデータ・ログ
+*.log
+*.sqlite3
+
+# Dockerに不要なローカルファイル
+node_modules/
+dist/
+build/

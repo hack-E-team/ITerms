@@ -1,0 +1,50 @@
+# Python関連
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+*.egg
+*.pyc
+*.pyo
+*.pyd
+venv
+.venv
+
+# Django関連
+*.sqlite3
+media/
+staticfiles/
+static/
+*.log
+!*/static/
+!*/static/**/*
+
+# 環境変数ファイル
+.env
+.env.*
+!.env.example
+# 例: .env.dev, .env.prod など
+
+# VSCode設定ファイル
+.vscode/
+
+# IDE/エディタの設定ファイル
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOSの不要ファイル
+.DS_Store
+
+# Docker関連
+*.log
+
+# Dockerボリュームなどのデータディレクトリ
+mysql_data/
+postgres_data/
+
+# その他ビルド成果物やキャッシュ
+*.bak
+*.swp
+*.tmp

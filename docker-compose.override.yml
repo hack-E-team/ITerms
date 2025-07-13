@@ -1,0 +1,30 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/django/Dockerfile.dev
+    container_name: django_dev
+    env_file:
+      - .env.dev
+    volumes:
+      - ./:/iterms
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    working_dir: /iterms/app
+    command: ["/wait-for-it.sh", "db:3306", "--", "sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_dev
+    env_file:
+      - .env.dev
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+
+volumes:
+  mysql_data:

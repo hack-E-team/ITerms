@@ -19,7 +19,7 @@ services:
       - ./staticfiles:/iterms/staticfiles
       - ./infra/docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - web
+      - django
     restart: always
     profiles: ["production"]
 

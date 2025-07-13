@@ -94,6 +94,8 @@ docker compose exec django python manage.py startapp accounts
 docker compose exec db bash
 ```
 
+- VSCodeの拡張機能「Dev Containers」を使う
+
 ## （本番のみ）本番環境の起動
 
 ``` bash

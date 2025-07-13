@@ -1,5 +1,5 @@
 services:
-  web:
+  django:
     build:
       context: .
       dockerfile: infra/docker/django/Dockerfile.dev

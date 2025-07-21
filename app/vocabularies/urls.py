@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'vocabularies'
+
 urlpatterns = [
-    path('myvocabularies/', views.myvocabularies_view, name='myvocabularies'),
+    path('index/', views.dummy_vocabularies_view, name='myvocabularies'),
 ]

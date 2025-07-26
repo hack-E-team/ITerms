@@ -1,11 +1,51 @@
-<!DOCTYPE html>
+{% load static %}  
+ <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-</head>
+    <meta charset="UTF-8">
+    <title>ログイン | ITerms</title>
+    <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+    <style></style>
+    </head>
 <body>
-    テスト
+  <div class="login-page-wrapper">
+        <header class="main-header">
+            <div class="header-logo">IT</div>
+            <div class="header-text">iTerms</div>
+        </header>
+
+        <main class="login-container">
+            <section class="hero-section">
+                <div class="hero-logo">IT</div>
+                <h1 class="hero-title">iTerms</h1>
+                <p class="hero-description">ITの知識を、ひとつずつ確実に。IT用語を記録し、知識を積み上げよう。</p>
+            </section>
+
+            <section class="login-form-section">
+                <h2 class="form-title">ログイン</h2>
+                <form action="/login" method="post">
+                    <div class="form-group">
+                        <label for="email" class="sr-only">メールアドレス</label>
+                        <input type="email" id="email" name="email" placeholder="メールアドレス" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="sr-only">パスワード</label>
+                        <input type="password" id="password" name="password" placeholder="パスワード" required>
+                    </div>
+
+                    <button type="submit" class="login-button">ログイン</button>
+                </form>
+
+                <div class="forgot-password">
+                    <a href="/forgot-password">パスワードをお忘れの方はこちら</a>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>
+
+

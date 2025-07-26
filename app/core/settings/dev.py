@@ -7,6 +7,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+STATIC_URL = '/static/'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',

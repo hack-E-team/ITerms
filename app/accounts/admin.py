@@ -14,3 +14,4 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {"fields": ("nickname",)}),
     )
+    #

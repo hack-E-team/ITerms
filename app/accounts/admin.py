@@ -15,4 +15,4 @@ class CustomUserAdmin(UserAdmin):
         (None, {"fields": ("nickname",)}),
     )
     #
-#S
+#Ssa

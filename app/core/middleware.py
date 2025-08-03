@@ -7,7 +7,7 @@ class SSLRedirectExemptMiddleware:
 
     def __call__(self, request):
         if getattr(settings, "SECURE_SSL_REDIRECT", False):
-            if request.path != "/health/":
+            if not request.path.startswith("/health"):
                 if not request.is_secure():
                     return HttpResponsePermanentRedirect("https://" + request.get_host() + request.get_full_path())
         return self.get_response(request)

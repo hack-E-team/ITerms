@@ -8,4 +8,5 @@ urlpatterns = [
     path('terms/', include('terms.urls')),
     path('vocabularies/', include('vocabularies.urls')),
     path('quizzes/', include('quizzes.urls')),
+    path("health/", include("health.urls")),
 ]

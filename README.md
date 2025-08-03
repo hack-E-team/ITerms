@@ -58,9 +58,11 @@ pip install -r requirements.txt
 ルートディレクトリに.env.devファイルを作成し、.env.exampleの中身をコピペしてください。（本番環境は.env.prod）
 以下のコマンドで自動で作成されます。
 作成したら、your～となっている変数を自分で分かりやすいものに書き換えてください。
+中身は空でいいので.env.prodファイルも作っておいてください。
 
 ``` bash
 cp .env.example .env.dev
+touch .env.prod
 ```
 
 ## Dockerの起動

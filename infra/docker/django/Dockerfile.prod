@@ -15,7 +15,7 @@ COPY ./requirements.txt ./
 
 RUN pip install --upgrade pip && pip wheel --no-cache-dir --wheel-dir=/wheels -r requirements.txt
 
-COPY ./app/ ./app
+COPY ./app ./app
 
 # --- 本番ステージ ---
 FROM python:3.13-slim
@@ -25,6 +25,7 @@ ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y \
     libmariadb3 \
+    default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /iterms
@@ -33,7 +34,7 @@ RUN pip install --upgrade pip
 
 # ビルドステージからwheelディレクトリをコピー
 COPY --from=builder /wheels /wheels
-COPY --from=builder /iterms/app/. ./
+COPY --from=builder /iterms/app/. ./app/
 
 COPY ./requirements.txt ./
 
@@ -41,4 +42,4 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels -r requirements.t
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["sh", "-c", "cd app && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:8000"]

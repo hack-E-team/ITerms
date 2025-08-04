@@ -9,7 +9,11 @@ DEBUG = False
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "").split(",")
+    if host.strip()
+]
 
 # RDS/MySQLなど本番DB設定
 

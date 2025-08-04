@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
     libmariadb3 \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /iterms/app
+WORKDIR /iterms
 
 RUN pip install --upgrade pip
 

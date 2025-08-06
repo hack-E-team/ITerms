@@ -1,5 +1,6 @@
 asgiref==3.9.0
 Django==5.2.4
+django-storages==1.14.6
 dotenv==0.9.9
 gunicorn==23.0.0
 mysqlclient==2.2.7

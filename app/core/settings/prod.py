@@ -40,6 +40,7 @@ INSTALLED_APPS += ['storages']
 AWS_STORAGE_BUCKET_NAME = 'iterms-static'
 AWS_S3_REGION_NAME = 'ap-northeast-1'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'app', 'static')]
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"

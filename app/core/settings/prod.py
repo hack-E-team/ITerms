@@ -46,3 +46,6 @@ STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 AWS_CLOUDFRONT_DOMAIN = "d3t658gdoc1u83.cloudfront.net"
 STATIC_URL = f"https://{AWS_CLOUDFRONT_DOMAIN}/"
+
+if 'STATIC_ROOT' in globals():
+    del STATIC_ROOT

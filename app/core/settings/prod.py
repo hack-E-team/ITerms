@@ -1,5 +1,6 @@
 import os
 from .base import *
+from core.storage_backends import StaticStorage
 
 debug_env = os.getenv("DEBUG", "False").lower()
 if debug_env in ("true", "1", "yes"):
@@ -40,8 +41,8 @@ AWS_S3_REGION_NAME = "ap-northeast-1"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "dummy-static")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "app", "static")]
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-STATICFILES_STORAGE = 'core.storage_backends.StaticStorage'
+DEFAULT_FILE_STORAGE = StaticStorage
+STATICFILES_STORAGE = StaticStorage
 
 INSTALLED_APPS = ["storages"] + INSTALLED_APPS
 

@@ -38,6 +38,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 AWS_STORAGE_BUCKET_NAME = 'iterms-static'
 AWS_S3_REGION_NAME = 'ap-northeast-1'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'dummy-static')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'app', 'static')]
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
@@ -47,4 +48,3 @@ INSTALLED_APPS = ['storages'] + INSTALLED_APPS
 AWS_CLOUDFRONT_DOMAIN = "d3t658gdoc1u83.cloudfront.net"
 STATIC_URL = f"https://{AWS_CLOUDFRONT_DOMAIN}/"
 
-STATIC_ROOT = None

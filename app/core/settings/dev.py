@@ -17,3 +17,6 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT", "3306"),
     }
 }
+
+
+#asd

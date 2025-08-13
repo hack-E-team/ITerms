@@ -108,3 +108,5 @@ docker compose -f docker-compose.yml --profile production up
 - nginx コンテナは profiles: ["production"] に設定しているため、開発環境では起動せず、本番環境でのみ起動するようにしています。
 - 本番環境では --profile production を指定して起動します。
 - 開発環境では docker compose up のみで nginx を除いたサービスが起動します。
+
+# aaaa

@@ -8,4 +8,7 @@ urlpatterns = [
     path('terms/', include('terms.urls')),
     path('vocabularies/', include('vocabularies.urls')),
     path('quizzes/', include('quizzes.urls')),
+    path('quizzes/api/dashboard/', include('dashboard.urls')), 
+    path('sharing/', include('sharing.urls', namespace='sharing')),
 ]
+

@@ -2,6 +2,9 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+# app/manage.py
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.base")
+
 
 
 def main():

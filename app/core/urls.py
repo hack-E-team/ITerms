@@ -9,4 +9,7 @@ urlpatterns = [
     path('vocabularies/', include('vocabularies.urls')),
     path('quizzes/', include('quizzes.urls')),
     path("health/", include("health.urls")),
+    path('quizzes/api/dashboard/', include('dashboard.urls')), 
+    path('sharing/', include('sharing.urls', namespace='sharing')),
 ]
+

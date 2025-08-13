@@ -1,6 +1,8 @@
 import os
 from .base import *
+from dotenv import load_dotenv
 
+load_dotenv(BASE_DIR / '.env.dev')
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
@@ -17,3 +19,9 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT", "3306"),
     }
 }
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "app" / "static"
+]

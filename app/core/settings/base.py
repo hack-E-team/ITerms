@@ -3,6 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
+
 INSTALLED_APPS = [
     # Djangoデフォルトアプリや共通アプリ
     'django.contrib.admin',
@@ -14,9 +15,13 @@ INSTALLED_APPS = [
     'accounts',
     'vocabularies',
     'terms',
+    'quizzes',
+    'dashboard',
+    'sharing',
 ]
 
 MIDDLEWARE = [
+    "core.middleware.SSLRedirectExemptMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -31,7 +36,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [BASE_DIR / "app" /"templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,12 +75,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-DEBUG = True
-
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 AUTH_USER_MODEL = 'accounts.User'

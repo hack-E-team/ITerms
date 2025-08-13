@@ -1,11 +1,33 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>ログイン | ITerms</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/accounts.css' %}">
 </head>
 <body>
-    テスト
+    <header class="header">
+        <img src="{% static 'common/img/ITerm-logo.png' %}" alt="ITerms ロゴ" class="logo">
+
+    </header>
+
+    <div class="main-visual">
+        <img src="{% static 'common/img/ITerm-main.png' %}" alt="ITerms メインビジュアル">
+    </div>
+
+    <div class="login-container">
+        <h2>ログイン</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="email" name="username" placeholder="メールアドレス" required>
+            <input type="password" name="password" placeholder="パスワード" required>
+            <button type="submit">ログイン</button>
+        </form>
+        <div class="forgot-password">
+            <a href="#">パスワードを<br>お忘れの方はこちら</a>
+        </div>
+    </div>
 </body>
 </html>

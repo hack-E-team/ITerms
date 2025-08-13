@@ -11,5 +11,6 @@ urlpatterns = [
     path("health/", include("health.urls")),
     path('quizzes/api/dashboard/', include('dashboard.urls')), 
     path('sharing/', include('sharing.urls', namespace='sharing')),
+    path('accounts/', include('accounts.urls', namespace='accounts')),
 ]
 

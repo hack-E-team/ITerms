@@ -8,5 +8,5 @@ urlpatterns = [
     path('terms/', include('terms.urls')),
     path('vocabularies/', include('vocabularies.urls')),
     path('quizzes/', include('quizzes.urls')),
-    path('accounts/', include('accounts.urls', namespace='accounts')),
+ #   path('accounts/', include('accounts.urls', namespace='accounts')),
 ]

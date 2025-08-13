@@ -1,0 +1,127 @@
+/* accounts.css */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    background-color: #f0f2f5; /* 明るい背景色 */
+    display: flex;
+    justify-content: center; /* 水平方向の中央揃え */
+    align-items: center; /* 垂直方向の中央揃え (画面全体を使う場合) */
+    min-height: 100vh; /* 画面の高さがいっぱいに広がる */
+}
+
+.registration-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* 全体の幅を制限する */
+    max-width: 400px; /* フォームの最大幅 */
+    min-height: 100vh; /* 垂直方向の中央揃えのため */
+    justify-content: center; /* フォームを垂直方向に中央揃え */
+    align-items: center; /* フォームを水平方向に中央揃え */
+    padding: 20px;
+    box-sizing: border-box; /* パディングを幅に含める */
+}
+
+.registration-box {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%; /* コンテナ内の幅に合わせる */
+    box-sizing: border-box;
+}
+
+.registration-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box; /* パディングとボーダーを幅に含める */
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus {
+    border-color: #007bff; /* フォーカス時のボーダー色 */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.register-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff; /* 青色のボタン */
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 10px;
+}
+
+.register-button:hover {
+    background-color: #0056b3; /* ホバー時の色 */
+}
+
+.login-link-container {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: #666;
+}
+
+.login-link-container a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-link-container a:hover {
+    text-decoration: underline;
+}
+
+/* ヘッダー部分は画像には見当たりませんが、既存のCSSから流用 */
+/* .main-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.header-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0049a2; /* FigmaのITロゴの色に合わせて調整 */
+    /* margin-right: 8px; */
+/* } */ 

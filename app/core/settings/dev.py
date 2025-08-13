@@ -9,6 +9,12 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # 画像表示(imgに紐付け)
+]
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',

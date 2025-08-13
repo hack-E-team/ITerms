@@ -5,7 +5,7 @@ debug_env = os.getenv("DEBUG", "False").lower()
 if debug_env in ("true", "1", "yes"):
     raise RuntimeError("DEBUG must be False in production!")
 
-DEBUG = False
+DEBUG = True
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 

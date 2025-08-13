@@ -1,0 +1,64 @@
+body {
+    background-color: #EDF1FF;
+    font-family: "Helvetica Neue", sans-serif;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    font-size: 16px;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #FF6D6D;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255, 109, 109, 0.3);
+    transition: background-color 0.3s ease;
+}
+
+.login-container button:hover {
+    background-color: #ff4b4b;
+}
+
+.forgot-password {
+    margin-top: 15px;
+}
+
+.forgot-password a {
+    display: inline-block;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    text-decoration: none;
+    color: #333;
+}

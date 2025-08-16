@@ -60,18 +60,21 @@ AWS_LOCATION = "static"
 
 # CloudFront のドメイン
 AWS_CLOUDFRONT_DOMAIN = os.getenv("AWS_CLOUDFRONT_DOMAIN")
+AWS_S3_CUSTOM_DOMAIN = AWS_CLOUDFRONT_DOMAIN
 
 # django-storages（S3）を staticfiles のバックエンドに
 STORAGES = {
-    # staticfiles は S3 の Manifest ストレージを使う（collectstatic の出力先）
     "staticfiles": {
         "BACKEND": "storages.backends.s3boto3.S3ManifestStaticStorage",
+        "OPTIONS": {
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "custom_domain": AWS_S3_CUSTOM_DOMAIN,
+            "region_name": AWS_S3_REGION_NAME,
+            "location": AWS_LOCATION,
+        },
     },
-    # default（MEDIAをS3にしないなら FileSystem のままでもOK。必要に応じて変更）
-    # "default": {
-    #     "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-    # },
+    # "default": {...}  # MEDIA もS3にしたいなら別途
 }
 
 # STATIC_URL を CloudFront へ向ける
-STATIC_URL = f"https://{AWS_CLOUDFRONT_DOMAIN}/{AWS_LOCATION}/"
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"

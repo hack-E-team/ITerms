@@ -57,7 +57,16 @@ AWS_LOCATION = "static"
 AWS_CLOUDFRONT_DOMAIN = os.getenv("AWS_CLOUDFRONT_DOMAIN")
 
 # django-storages（S3）を staticfiles のバックエンドに
-STATICFILES_STORAGE = "storages.backends.s3boto3.S3ManifestStaticStorage"
+STORAGES = {
+    # staticfiles は S3 の Manifest ストレージを使う（collectstatic の出力先）
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3boto3.S3ManifestStaticStorage",
+    },
+    # default（MEDIAをS3にしないなら FileSystem のままでもOK。必要に応じて変更）
+    # "default": {
+    #     "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    # },
+}
 
 # STATIC_URL を CloudFront へ向ける
 STATIC_URL = f"https://{AWS_CLOUDFRONT_DOMAIN}/{AWS_LOCATION}/"

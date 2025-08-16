@@ -12,7 +12,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # 画像表示(imgに紐付け)
+    BASE_DIR / "app" / "static"
 ]
 
 DATABASES = {
@@ -25,9 +25,3 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT", "3306"),
     }
 }
-
-STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / "app" / "static"
-]

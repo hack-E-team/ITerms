@@ -17,6 +17,11 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = ["storages"] + INSTALLED_APPS
 
+STATICFILES_DIRS = [
+    BASE_DIR / "app" / "static"
+]
+
+
 # セキュリティ強化設定
 
 SECURE_SSL_REDIRECT = True

@@ -7,13 +7,24 @@ if debug_env in ("true", "1", "yes"):
 
 DEBUG = True
 
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv("ALLOWED_HOSTS", "").split(",")
     if host.strip()
 ]
+
+INSTALLED_APPS = ["storages"] + INSTALLED_APPS
+
+# セキュリティ強化設定
+
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
 
 # RDS/MySQLなど本番DB設定
 
@@ -28,28 +39,25 @@ DATABASES = {
     }
 }
 
-# セキュリティ強化設定
+# ------ Static files を S3 へ ----------
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "ap-northeast-1")
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_DEFAULT_ACL = None
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_OBJECT_PARAMETERS = {
+    # CloudFront 経由で長期キャッシュ & 変更検知はハッシュ付きファイル名で
+    "CacheControl": "public, max-age=31536000, s-maxage=31536000, immutable"
+}
 
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# S3 上の静的ファイルのプレフィックス（バケット直下に 'static/' 配下で管理）
+AWS_LOCATION = "static"
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-USE_X_FORWARDED_HOST = True
+# CloudFront のドメイン
+AWS_CLOUDFRONT_DOMAIN = os.getenv("AWS_CLOUDFRONT_DOMAIN")
 
-# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+# django-storages（S3）を staticfiles のバックエンドに
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3ManifestStaticStorage"
 
-# AWS_STORAGE_BUCKET_NAME = "iterms-static"
-# AWS_S3_REGION_NAME = "ap-northeast-1"
-
-# # DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-# STATICFILES_STORAGE = "storages.backends.s3boto3.S3StaticStorage"
-
-# INSTALLED_APPS = ["storages"] + INSTALLED_APPS
-
-# AWS_CLOUDFRONT_DOMAIN = "d3t658gdoc1u83.cloudfront.net"
-# AWS_LOCATION = 'static'
-# STATIC_URL = f"https://{AWS_CLOUDFRONT_DOMAIN}/{AWS_LOCATION}/"
-
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+# STATIC_URL を CloudFront へ向ける
+STATIC_URL = f"https://{AWS_CLOUDFRONT_DOMAIN}/{AWS_LOCATION}/"

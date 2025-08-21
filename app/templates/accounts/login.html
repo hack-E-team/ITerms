@@ -1,33 +1,19 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン | ITerms</title>
-    <link rel="stylesheet" href="{% static 'accounts/css/accounts.css' %}">
-</head>
-<body>
-    <header class="header">
-        <img src="{% static 'common/img/ITerm-logo.png' %}" alt="ITerms ロゴ" class="logo">
-
-    </header>
-
-    <div class="main-visual">
-        <img src="{% static 'common/img/ITerm-main.png' %}" alt="ITerms メインビジュアル">
-    </div>
-
-    <div class="login-container">
-        <h2>ログイン</h2>
-        <form method="post">
-            {% csrf_token %}
-            <input type="email" name="username" placeholder="メールアドレス" required>
-            <input type="password" name="password" placeholder="パスワード" required>
-            <button type="submit">ログイン</button>
-        </form>
-        <div class="forgot-password">
-            <a href="#">パスワードを<br>お忘れの方はこちら</a>
-        </div>
-    </div>
-</body>
-</html>
+{% extends "common/base.html" %}
+{% block content %}
+<h1>ログイン</h1>
+<form method="post">{% csrf_token %}
+  <div>
+    <label>ユーザー名</label>
+    <input name="username" value="{{ values.username|default:'' }}">
+    <div class="err">{{ errors.username }}</div>
+  </div>
+  <div>
+    <label>パスワード</label>
+    <input name="password" type="password">
+    <div class="err">{{ errors.password }}</div>
+  </div>
+  <div class="err">{{ errors.non_field }}</div>
+  <button type="submit">ログイン</button>
+</form>
+<p><a href="{% url 'accounts:signup' %}">サインアップ</a></p>
+{% endblock %}

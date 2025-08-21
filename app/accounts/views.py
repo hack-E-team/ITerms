@@ -1,200 +1,150 @@
 from __future__ import annotations
+from typing import Dict, Any
 
-import json
-from typing import Any, Dict
-
-from django.contrib import auth
 from django.contrib.auth import get_user_model, authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpRequest, HttpResponseBadRequest
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
-from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_protect
 
 User = get_user_model()
+HAS_NICK = hasattr(User, "nickname")
 
 
-def _json(request: HttpRequest) -> Dict[str, Any]:
-    """Request.body を JSON で安全に読む小ヘルパー。"""
-    if not request.body:
-        return {}
-    try:
-        return json.loads(request.body.decode("utf-8"))
-    except json.JSONDecodeError:
-        raise ValueError("Invalid JSON")
+def _vals(request) -> Dict[str, Any]:
+    """テンプレートへ返す共通値（入力値の保持など）"""
+    d = {
+        "username": (request.POST.get("username") or "").strip(),
+        "email": (request.POST.get("email") or "").strip(),
+    }
+    if HAS_NICK:
+        d["nickname"] = (request.POST.get("nickname") or "").strip()
+    return d
 
 
-def _ok(payload: Dict[str, Any] | None = None, status: int = 200) -> JsonResponse:
-    data = {"ok": True}
-    if payload:
-        data.update(payload)
-    return JsonResponse(data, status=status)
+@require_http_methods(["GET", "POST"])
+@csrf_protect
+def signup_view(request):
+    if request.method == "GET":
+        return render(request, "accounts/signup.html")
 
+    values = _vals(request)
+    password = request.POST.get("password") or ""
+    errors: Dict[str, str] = {}
 
-def _err(message: str, *, status: int = 400, fields: Dict[str, Any] | None = None) -> JsonResponse:
-    data = {"ok": False, "error": message}
-    if fields:
-        data["fields"] = fields
-    return JsonResponse(data, status=status)
+    if not values["username"]:
+        errors["username"] = "ユーザー名は必須です。"
+    if not password:
+        errors["password"] = "パスワードは必須です。"
+    if values["username"] and User.objects.filter(username=values["username"]).exists():
+        errors["username"] = "このユーザー名は既に使用されています。"
 
+    if errors:
+        return render(request, "accounts/signup.html", {"errors": errors, "values": values}, status=400)
 
-@require_http_methods(["GET"])
-def csrf(request: HttpRequest):
-    """
+    kwargs = {"email": values["email"] or None}
+    if HAS_NICK:
+        kwargs["nickname"] = (values.get("nickname") or "").strip()
 
-    """
-    token = get_token(request)
-    return _ok({"csrfToken": token})
-
-
-@csrf_exempt 
-@require_http_methods(["POST"])
-def signup(request: HttpRequest):
-    """
-    POST /accounts/api/signup
-    Body(JSON):
-      { "username": "...", "password": "...", "email": "...", "nickname": "..." }
-    """
-    try:
-        data = _json(request)
-    except ValueError:
-        return _err("Invalid JSON")
-
-    username = (data.get("username") or "").strip()
-    password = (data.get("password") or "")
-    email = (data.get("email") or "").strip()
-    nickname = (data.get("nickname") or "").strip()
-
-    if not username or not password:
-        return _err("username and password are required.", fields={"username": bool(username), "password": bool(password)})
-
-    if User.objects.filter(username=username).exists():
-        return _err("Username already taken.", fields={"username": "taken"})
-
-    user = User.objects.create_user(
-        username=username,
-        password=password,
-        email=email or None,
-        nickname=nickname or None,
-    )
-    # サインアップ後に即ログイン
+    user = User.objects.create_user(values["username"], password=password, **kwargs)
     login(request, user)
-    return _ok({"user": {"id": user.id, "username": user.username, "email": user.email, "nickname": getattr(user, "nickname", None)}} , status=201)
+    return redirect("accounts:me")
 
 
-@csrf_exempt
+@require_http_methods(["GET", "POST"])
+@csrf_protect
+def login_view(request):
+    if request.method == "GET":
+        return render(request, "accounts/login.html")
+
+    username = (request.POST.get("username") or "").strip()
+    password = request.POST.get("password") or ""
+    errors: Dict[str, str] = {}
+
+    if not username:
+        errors["username"] = "ユーザー名は必須です。"
+    if not password:
+        errors["password"] = "パスワードは必須です。"
+
+    if not errors:
+        user = authenticate(request, username=username, password=password)
+        if user is None:
+            errors["non_field"] = "ユーザー名またはパスワードが違います。"
+        else:
+            login(request, user)
+            return redirect("accounts:me")
+
+    return render(request, "accounts/login.html", {"errors": errors, "values": {"username": username}}, status=401)
+
+
 @require_http_methods(["POST"])
-def login_view(request: HttpRequest):
-    """
-    POST /accounts/api/login
-    Body(JSON): { "username": "...", "password": "..." }
-    """
-    try:
-        data = _json(request)
-    except ValueError:
-        return _err("Invalid JSON")
-
-    username = (data.get("username") or "").strip()
-    password = (data.get("password") or "")
-
-    if not username or not password:
-        return _err("username and password are required.")
-
-    user = authenticate(request, username=username, password=password)
-    if user is None:
-        return _err("Invalid credentials.", status=401)
-
-    login(request, user)
-    return _ok({"user": {"id": user.id, "username": user.username, "email": user.email, "nickname": getattr(user, "nickname", None)}})
-
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def logout_view(request: HttpRequest):
-    """
-    POST /accounts/api/logout
-    """
-    if request.user.is_authenticated:
-        logout(request)
-    return _ok({})
+@csrf_protect
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect("accounts:login")
 
 
 @require_http_methods(["GET"])
 @login_required
-def me(request: HttpRequest):
-    """
-    GET /accounts/api/me
-    """
-    u = request.user
-    return _ok({
-        "user": {
-            "id": u.id,
-            "username": u.username,
-            "email": u.email,
-            "nickname": getattr(u, "nickname", None),
-            "is_staff": u.is_staff,
-            "is_superuser": u.is_superuser,
-        }
-    })
+def me_view(request):
+    return render(request, "accounts/me.html", {"u": request.user})
 
 
-@csrf_exempt
-@require_http_methods(["PATCH", "POST"])  
+@require_http_methods(["GET", "POST"])
+@csrf_protect
 @login_required
-def profile_update(request: HttpRequest):
-    """
-    PATCH/POST /accounts/api/profile/update
-    Body(JSON): 任意 {"email": "...", "nickname": "..."}
-    """
-    try:
-        data = _json(request)
-    except ValueError:
-        return _err("Invalid JSON")
+def profile_view(request):
+    if request.method == "GET":
+        init = {"email": request.user.email or ""}
+        if HAS_NICK:
+            init["nickname"] = getattr(request.user, "nickname", "") or ""
+        return render(request, "accounts/profile.html", {"values": init})
 
-    email = data.get("email")
-    nickname = data.get("nickname")
+    email = (request.POST.get("email") or "").strip()
+    nickname = (request.POST.get("nickname") or "").strip() if HAS_NICK else ""
+
+    errors: Dict[str, str] = {}
+    # 必要なら email の簡易バリデーションを追加
+    # if email and "@" not in email: errors["email"] = "メール形式が不正です。"
+
+    if errors:
+        values = {"email": email}
+        if HAS_NICK:
+            values["nickname"] = nickname or ""
+        return render(request, "accounts/profile.html", {"errors": errors, "values": values}, status=400)
 
     u: User = request.user
-    if email is not None:
-        u.email = (email or "").strip() or None
-    if nickname is not None and hasattr(u, "nickname"):
-        u.nickname = (nickname or "").strip() or None
-
-    u.save(update_fields=["email"] + (["nickname"] if hasattr(u, "nickname") else []))
-    return _ok({
-        "user": {
-            "id": u.id,
-            "username": u.username,
-            "email": u.email,
-            "nickname": getattr(u, "nickname", None),
-        }
-    })
+    u.email = email or None
+    if HAS_NICK:
+        u.nickname = nickname
+    u.save(update_fields=["email"] + (["nickname"] if HAS_NICK else []))
+    return redirect("accounts:me")
 
 
-@csrf_exempt
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
+@csrf_protect
 @login_required
-def password_change(request: HttpRequest):
-    """
-    POST /accounts/api/password/change
-    Body(JSON): { "old_password": "...", "new_password": "..." }
-    """
-    try:
-        data = _json(request)
-    except ValueError:
-        return _err("Invalid JSON")
+def password_change_view(request):
+    if request.method == "GET":
+        return render(request, "accounts/password_change.html")
 
-    old_pw = data.get("old_password") or ""
-    new_pw = data.get("new_password") or ""
+    old_pw = request.POST.get("old_password") or ""
+    new_pw = request.POST.get("new_password") or ""
+    errors: Dict[str, str] = {}
 
-    if not old_pw or not new_pw:
-        return _err("old_password and new_password are required.")
+    if not old_pw:
+        errors["old_password"] = "現在のパスワードを入力してください。"
+    if not new_pw:
+        errors["new_password"] = "新しいパスワードを入力してください。"
 
-    if not request.user.check_password(old_pw):
-        return _err("Old password is incorrect.", status=401)
+    if not errors and not request.user.check_password(old_pw):
+        errors["old_password"] = "現在のパスワードが違います。"
+
+    if errors:
+        return render(request, "accounts/password_change.html", {"errors": errors}, status=400)
 
     request.user.set_password(new_pw)
     request.user.save(update_fields=["password"])
-    # パスワード変更後もセッションを切らさない
-    update_session_auth_hash(request, request.user)
-    return _ok({})
+    update_session_auth_hash(request, request.user)  # セッション維持
+    return redirect("accounts:me")

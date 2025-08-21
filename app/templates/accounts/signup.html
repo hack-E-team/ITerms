@@ -1,0 +1,30 @@
+{% extends "common/base.html" %}
+{% block content %}
+<h1>サインアップ</h1>
+<form method="post">{% csrf_token %}
+  <div>
+    <label>ユーザー名</label>
+    <input name="username" value="{{ values.username|default:'' }}">
+    <div class="err">{{ errors.username }}</div>
+  </div>
+  <div>
+    <label>メール</label>
+    <input name="email" value="{{ values.email|default:'' }}">
+    <div class="err">{{ errors.email }}</div>
+  </div>
+  {% if values.nickname is not None %}
+  <div>
+    <label>ニックネーム</label>
+    <input name="nickname" value="{{ values.nickname|default:'' }}">
+  </div>
+  {% endif %}
+  <div>
+    <label>パスワード</label>
+    <input name="password" type="password">
+    <div class="err">{{ errors.password }}</div>
+  </div>
+  <div class="err">{{ errors.non_field }}</div>
+  <button type="submit">作成</button>
+</form>
+<p><a href="{% url 'accounts:login' %}">ログイン</a></p>
+{% endblock %}

@@ -1,33 +1,42 @@
+{% extends 'common/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン | ITerms</title>
-    <link rel="stylesheet" href="{% static 'accounts/css/accounts.css' %}">
-</head>
-<body>
-    <header class="header">
-        <img src="{% static 'common/img/ITerm-logo.png' %}" alt="ITerms ロゴ" class="logo">
 
-    </header>
-
-    <div class="main-visual">
-        <img src="{% static 'common/img/ITerm-main.png' %}" alt="ITerms メインビジュアル">
+{% block header %}
+<div class="div-login-header">
+    <div class="logo-container">
+        <img src="{% static 'common/img/ITerm-logo.png' %}" alt="ITerms Logo" class="header-logo">
     </div>
+    <div class="div-register-button">
+        <button class="register-button">無料登録</button>
+    </div>
+</div>
+{% endblock %}
 
-    <div class="login-container">
-        <h2>ログイン</h2>
-        <form method="post">
-            {% csrf_token %}
-            <input type="email" name="username" placeholder="メールアドレス" required>
-            <input type="password" name="password" placeholder="パスワード" required>
-            <button type="submit">ログイン</button>
-        </form>
-        <div class="forgot-password">
-            <a href="#">パスワードを<br>お忘れの方はこちら</a>
+{% block main_content %}
+<div class="main-body">
+    <div class="main-content">
+        <div class="title-section">
+            <img src="{% static 'common/img/ITerm-main.png' %}" alt="ITerms Main" class="main-image">
+        </div>
+        
+        <div class="form-section">
+            <h2 class="form-title">ログイン</h2>
+            <form>
+                <div class="form-group">
+                    <input type="email" name="email" id="email" placeholder="メールアドレス">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" id="password" placeholder="パスワード">
+                </div>
+                    <p class="login-button-paragraph">
+                        <button type="submit" class="login-button">ログイン</button>
+                    </p>
+            </form>
+            
+                <p class="password-reset-paragraph">
+             <a href="#" class="password-reset">パスワードをお忘れの方はこちら</a>
+         </p>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

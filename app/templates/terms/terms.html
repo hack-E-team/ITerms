@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITerms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'common/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'terms/css/terms.css' %}">
+</head>
+<body>
+
+
+<header>
+    <img src="../img/ITerm-logo.png" alt="サイトロゴ">
+    <a href="#" class="hamburger-menu" id="menuBtn">
+        <i class="fas fa-bars" id="menuIcon"></i>
+        <i class="fas fa-times" id="closeIcon" style="display:none;"></i>
+    </a>
+</header>
+
+<div class="menu-modal" id="menuModal">
+    <div class="menu-content">
+        <a href="#">マイページ</a>
+        <a href="#">ログアウト</a>
+    </div>
+</div>
+
+<main>
+    <h1>用語学習</h1>
+
+    <div class="container">
+        <button id="prev-btn" class="navigation-btn">◀</button>
+
+    <div class="card-and-info">
+        <div id="flashcard-container" class="flashcard-container">
+    <div id="flashcard" class="flashcard">
+    <div id="front" class="front"></div>
+    <div id="back" class="back"></div>
+    </div>
+    </div>
+    <div class="card-info">タップで裏返す</div>
+        <a href="list.html" id="list-link" class="list-link">用語を一覧で表示</a>
+    </div>
+
+    <button id="next-btn" class="navigation-btn">▶</button>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-nav">
+        <a href="#"><i class="fas fa-home"></i></a>
+        <a href="#"><i class="far fa-folder"></i></a>
+        <a href="#"><i class="fas fa-plus"></i></a>
+        <a href="#"><i class="fas fa-search"></i></a>
+    </div>
+</footer>
+
+<script src="{% static 'terms/js/Flashcard.js' %}"></script>
+<script src="{% static 'common/js/hamuburger.js' %}"></script>
+</body>
+</html>

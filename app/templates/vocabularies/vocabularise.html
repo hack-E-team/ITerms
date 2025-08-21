@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITerms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'common/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'vocabularies/css/vocabularise.css' %}">
+</head>
+<body>
+
+
+<header>
+    <img src="../img/ITerm-logo.png" alt="サイトロゴ">
+    <a href="#" class="hamburger-menu" id="menuBtn">
+        <i class="fas fa-bars" id="menuIcon"></i>
+        <i class="fas fa-times" id="closeIcon" style="display:none;"></i>
+    </a>
+</header>
+
+<div class="menu-modal" id="menuModal">
+    <div class="menu-content">
+        <a href="#">マイページ</a>
+        <a href="#">ログアウト</a>
+    </div>
+</div>
+
+<main>
+    <h1>用語帳一覧</h1>
+    <div class="search-area">
+        <span class="search-icon"><i class="fas fa-search"></i></span>
+        <select class="tag-select">
+            <option value="">タグを選択</option>
+            <option value="IT">IT</option>
+            <option value="基本情報">基本情報</option>
+            <option value="AWS">AWS</option>
+            <!-- タグ追加 -->
+        </select>
+        <span class="select-arrow">▼</span>
+    </div>
+
+    <div class="flashcard-list">
+        <div class="flashcard-card">
+            <a href="#" class="card-link">
+                <div class="card-info">
+                    <div class="card-title">IT</div>
+                    <div class="card-count">用語数: 50</div>
+                    <div class="card-author">作成者: 山田太郎</div>
+                </div>
+            </a>
+            <a href="#" class="edit-btn">編集</a>
+        </div>
+        <div class="flashcard-card">
+            <a href="#" class="card-link">
+                <div class="card-info">
+                    <div class="card-title">基本情報</div>
+                    <div class="card-count">用語数: 120</div>
+                    <div class="card-author">作成者: 鈴木花子</div>
+                </div>
+            </a>
+            <a href="#" class="edit-btn">編集</a>
+        </div>
+        <div class="flashcard-card">
+            <a href="#" class="card-link">
+                <div class="card-info">
+                    <div class="card-title">AWS</div>
+                    <div class="card-count">用語数: 30</div>
+                    <div class="card-author">作成者: 佐藤健</div>
+                </div>
+            </a>
+            <a href="#" class="edit-btn">編集</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <div class="footer-nav">
+        <a href="#"><i class="fas fa-home"></i></a>
+        <a href="#"><i class="far fa-folder"></i></a>
+        <a href="#"><i class="fas fa-plus"></i></a>
+        <a href="#"><i class="fas fa-search"></i></a>
+    </div>
+</footer>
+
+<script src="{% static 'common/js/hamuburger.js' %}"></script>
+
+</body>
+</html>

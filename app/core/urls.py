@@ -11,5 +11,7 @@ urlpatterns = [
     # path('quizzes/api/dashboard/', include('dashboard.urls')), 
     path('sharing/', include('sharing.urls', namespace='sharing')), # 共有
     path('accounts/', include('accounts.urls', namespace='accounts')), # アカウント
+    path('vocabulariesSearch/', include('vocabulariesSearch.urls', namespace='vocabulariesSearch')),  # 用語帳検索
+    path('createterms/', include('createterms.urls', namespace='createterms')),  # 用語作成
 ]
 

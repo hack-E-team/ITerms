@@ -36,7 +36,7 @@ class Quiz(models.Model):
 
     @classmethod
     def make_from_term(cls, term, *, created_by=None, question_type="DT", choices=4):
-        """用語1つから1問を作成（AI不使用）"""
+       
         if choices < 2:
             raise ValueError("choices must be >= 2")
         quiz = cls.objects.create(term=term, created_by=created_by, question_type=question_type)

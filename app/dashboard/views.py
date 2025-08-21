@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
-def dummy_dashboard_view(request):
-    return render(request, 'dashboard/home.html')
+#def dummy_dashboard_view(request):
+    #return render(request, 'dashboard/home.html')
 
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
@@ -169,3 +169,4 @@ def daily(request):
         "range_days": days,
         "series": series,
     })
+

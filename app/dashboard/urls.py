@@ -3,9 +3,9 @@ from . import views
 
 app_name = 'dashboard'
 
-urlpatterns = [
-    path('', views.dummy_dashboard_view, name='dashboard'),
-]
+# urlpatterns = [
+#     path('', views.dummy_dashboard_view, name='dashboard'),
+# ]
 
 urlpatterns = [
     path('summary', views.summary, name='summary'),          # ?days=30

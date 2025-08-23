@@ -1,37 +1,22 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新規登録</title>
-    <link rel="stylesheet" href="static/css/sign_up.css"> </head>
-<body>
-    <div class="registration-container">
-        <div class="registration-box">
-            <h2 class="registration-title">新規登録</h2>
-            <form class="registration-form">
-                <div class="form-group">
-                    <label for="nickname">ニックネーム</label>
-                    <input type="text" id="nickname" name="nickname" placeholder="ニックネームを入力" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">メールアドレス</label>
-                    <input type="email" id="email" name="email" placeholder="メールアドレスを入力" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">パスワード</label>
-                    <input type="password" id="password" name="password" placeholder="パスワードを入力" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">パスワード (確認用)</label>
-                    <input type="password" id="confirm-password" name="confirm_password" placeholder="パスワードを再入力" required>
-                </div>
-                <button type="submit" class="register-button">登録</button>
-            </form>
-            <div class="login-link-container">
-                <p>すでにアカウントをお持ちですか？ <a href="login.html">ログイン</a></p>
-            </div>
-        </div>
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'accounts/css/sign_up.css' %}">
+{% endblock %}
+
+{% block main_content %}
+<div class="container">
+    <div class="card register-card">
+        <h2>新規登録</h2>
+        <form action="#" method="post">
+            {% csrf_token %}
+            <input type="text" placeholder="ニックネーム" required>
+            <input type="email" placeholder="メールアドレス" required>
+            <input type="password" placeholder="パスワード" required>
+            <input type="password" placeholder="パスワード(確認用)" required>
+            <button type="submit">登録</button>
+        </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

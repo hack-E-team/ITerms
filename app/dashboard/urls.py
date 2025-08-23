@@ -8,7 +8,7 @@ app_name = 'dashboard'
 # ]
 
 urlpatterns = [
-    path('', views.home_page, name='dashboard'),
+    path('', views.home_page, name='home'),
     path('summary', views.summary, name='summary'),          # ?days=30
     path('recent', views.recent, name='recent'),             # ?days=30&limit=20&offset=0
     path('vocabs', views.vocabs, name='vocabs'),             # ?days=90

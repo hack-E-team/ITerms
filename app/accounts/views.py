@@ -36,4 +36,4 @@ def signup_view(request):
         login(request, user)  # そのままログイン
         return redirect("dashboard:home")
 
-    return render(request, "accounts/signup.html", {"form": form})
+    return render(request, "sign_up/sign_up.html", {"form": form})

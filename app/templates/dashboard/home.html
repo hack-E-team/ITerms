@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>用語帳アプリ</title>
+<title>ITerms</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
@@ -35,22 +35,22 @@
     <h1>ダッシュボード</h1>
 
     <div class="main-buttons">
-        <a href="#">用語帳一覧</a>
-        <a href="#">用語帳を探す</a>
+        <a href="vocabularies">用語帳一覧</a>
+        <a href="vocabulariesSearch">用語帳を探す</a>
 
         <div class="inline-buttons">
             <a href="#">用語帳作成</a>
-            <a href="#">用語登録</a>
+            <a href="createterms">用語登録</a>
         </div>
     </div>
 </main>
 
 <footer>
     <div class="footer-nav">
-        <a href="#"><i class="fas fa-home"></i></a>
-        <a href="#"><i class="far fa-folder"></i></a>
-        <a href="#"><i class="fas fa-plus"></i></a>
-        <a href="#"><i class="fas fa-search"></i></a>
+        <a href="{% url 'dashboard:dashboard' %}"><i class="fas fa-home"></i></a>
+        <a href="{% url 'vocabularies:myvocabularies' %}"><i class="far fa-folder"></i></a>
+        <a href="{% url 'terms:createterms' %}"><i class="fas fa-plus"></i></a>
+        <a href="{% url 'vocabularies:vocabulariesSearch' %}"><i class="fas fa-search"></i></a>
     </div>
 </footer>
 

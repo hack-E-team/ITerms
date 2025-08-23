@@ -1,21 +1,26 @@
 {% extends 'common/base.html' %}
-{% load static %}
-
-{% block css %}
-<link rel="stylesheet" href="{% static 'accounts/css/sign_up.css' %}">
-{% endblock %}
 
 {% block main_content %}
-<div class="container">
-    <div class="card register-card">
-        <h2>新規登録</h2>
-        <form action="#" method="post">
+<div class="main-content">
+    <div class="card-register-card">
+        <h2 class="form-title">新規登録</h2>
+        <form action="" method="post">
             {% csrf_token %}
-            <input type="text" placeholder="ニックネーム" required>
-            <input type="email" placeholder="メールアドレス" required>
-            <input type="password" placeholder="パスワード" required>
-            <input type="password" placeholder="パスワード(確認用)" required>
-            <button type="submit">登録</button>
+            <div class="form-group">
+                <input type="text" name="nickname" placeholder="ニックネーム" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" placeholder="メールアドレス" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="パスワード" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password_confirm" placeholder="パスワード（確認用）" required>
+            </div>
+            <div class="div-button-container">
+                <button type="submit" class="signup-button">登録</button>
+            </div>
         </form>
     </div>
 </div>

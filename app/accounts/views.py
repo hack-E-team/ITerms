@@ -1,7 +1,7 @@
 # app/accounts/views.py
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 
@@ -24,3 +24,16 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     return render(request, "accounts/profile.html", {"user_obj": request.user})
+
+@require_http_methods(["GET", "POST"])
+def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard:home")
+
+    form = UserCreationForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.save()  # ユーザー作成
+        login(request, user)  # そのままログイン
+        return redirect("dashboard:home")
+
+    return render(request, "accounts/signup.html", {"form": form})

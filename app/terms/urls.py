@@ -1,9 +1,10 @@
+# app/terms/urls.py
 from django.urls import path
 from . import views
 
-app_name = 'terms'
+app_name = "terms"
 
 urlpatterns = [
-    path('index/', views.dummy_terms_view, name='myterms'),
-    path('createterms/', views.dummy_create_terms_view, name='createterms'),  # 用語作成
+    path("", views.term_list, name="list"),
+    path("<int:term_id>/", views.term_detail, name="detail"),
 ]

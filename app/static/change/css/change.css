@@ -1,0 +1,79 @@
+
+/* ====================
+メインコンテンツ (モバイル)
+==================== */
+main {
+    padding: 16px;
+    padding-top: 0;
+}
+
+h1 {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    text-align: left;
+    color: #fff;
+    font-size: 24px;
+    margin: 0;
+    padding: 16px;
+    background-color: #399ACA;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.container {
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    margin-top: 100px;
+}
+
+/* フォームのスタイル */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 各入力フィールド間の間隔 */
+}
+
+/* フォーム入力欄 */
+.form-group {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group input {
+    width: 90%;
+    max-width: 400px;
+    padding: 12px ; /* タップしやすいようにpaddingを増やす */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3; /* ホバー時の色 */
+}
+
+
+/* sign_upボタンを囲むコンテナのスタイル */
+.div-button-container {
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* 登録ボタンのスタイル  */
+.primary-button {
+    display: inline-block;
+    width: 40%;
+    max-width: 200px;
+    background-color: #ffffff;
+    color: #000;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    padding: 12px 0px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

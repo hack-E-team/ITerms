@@ -93,10 +93,9 @@ body {
 /* ログインボタン */
 .login-button {
     display: inline-block;
-    width: 70%;
+    width: 65%;
     background-color: #ffffff;
     color: #000;
-    font-weight: bold;
     border: 1px solid #ddd;
     border-radius: 25px;
     padding: 10px 20px;
@@ -139,9 +138,9 @@ body {
 .signup-button {
     display: inline-block;
     width: 60%;
+    max-width: 200px;
     background-color: #ffffff;
     color: #000;
-    font-weight: bold;
     border: 1px solid #ddd;
     border-radius: 25px;
     padding: 10px 20px;

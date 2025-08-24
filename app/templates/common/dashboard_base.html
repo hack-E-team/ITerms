@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iTerms</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'common/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'terms/css/terms.css' %}">
+    {% block css %}
+    {% endblock %}
+
+</head>
+<body>
+    <header>
+        <img src="{% static 'img/iTerm-logo.png' %}" alt="サイトロゴ">
+        <a href="#" class="hamburger-menu" id="menuBtn"><i class="fas fa-bars"></i></a>
+        <a href="#" class="fas fa-times" id="closeIcon" style="display:none;"></a>
+    </header>
+    <div class="menu-modal" id="menuModal">
+        <div class="menu-content">
+            <a href="#">マイページ</a>
+            <a href="#">ログアウト</a>
+        </div>
+    </div>
+    {% endblock %}
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <script src="{% static 'common/js/hamburger.js' %}"></script>
+</body>
+</html>

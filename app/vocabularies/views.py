@@ -1,16 +1,21 @@
-# app/vocabularies/views.py
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q, Count
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
+from django.utils import timezone
 
 from .models import Vocabulary, VocabularyTerm, Term, UserFavoriteVocabulary
-from terms.models import Tag  # Vocabulary.tags (M2M) はこれに紐づける想定
+from terms.models import Tag  # Vocabulary.tags (M2M) を使う想定
+
+# --- Vocabulary.tags が未定義でも死なないようにするヘルパ ---
+def _has_vocab_tags():
+    # M2M 'tags' フィールドが存在するかを動的に確認
+    return any(getattr(f, "many_to_many", False) and f.name == "tags" for f in Vocabulary._meta.get_fields())
 
 
 # =========================
@@ -21,7 +26,7 @@ def vocabulary_list_view(request):
     """
     用語帳一覧：公開 or 自分の用語帳
     - ?q=     タイトル / 説明 / 含まれる用語名 / 用語説明 / 用語帳タグ名
-    - ?tag=<id>  Vocabulary.tags で絞り込み
+    - ?tag=<id>  Vocabulary.tags で絞り込み（tags がある場合のみ）
     """
     q = (request.GET.get("q") or "").strip()
     tag = (request.GET.get("tag") or "").strip()
@@ -29,10 +34,11 @@ def vocabulary_list_view(request):
     qs = (
         Vocabulary.objects
         .select_related("user")
-        .prefetch_related("tags")
         .annotate(term_count=Count("terms", distinct=True))  # VocabularyTerm の件数
         .order_by("-updated_at", "-created_at")
     )
+    if _has_vocab_tags():
+        qs = qs.prefetch_related("tags")
 
     if request.user.is_authenticated:
         qs = qs.filter(Q(is_public=True) | Q(user=request.user))
@@ -40,42 +46,38 @@ def vocabulary_list_view(request):
         qs = qs.filter(is_public=True)
 
     if q:
-        qs = qs.filter(
-            Q(title__icontains=q) |
-            Q(description__icontains=q) |
-            Q(terms__term__term_name__icontains=q) |
-            Q(terms__term__description__icontains=q) |
-            Q(tags__name__icontains=q)
-        ).distinct()
+        base = Q(title__icontains=q) | Q(description__icontains=q) | Q(terms__term__term_name__icontains=q) | Q(terms__term__description__icontains=q)
+        if _has_vocab_tags():
+            base |= Q(tags__name__icontains=q)
+        qs = qs.filter(base).distinct()
 
     current_tag_id = None
-    if tag.isdigit():
+    if tag.isdigit() and _has_vocab_tags():
         current_tag_id = int(tag)
         qs = qs.filter(tags__id=current_tag_id).distinct()
 
-    return render(request, "vocabularies/list.html", {
+    return render(request, "vocabularies/vocabularies.html", {
         "q": q,
         "vocab_list": qs,
-        "all_tags": Tag.objects.order_by("name"),
+        "all_tags": Tag.objects.order_by("name") if _has_vocab_tags() else [],
         "current_tag_id": current_tag_id,
     })
 
 
-# ==========
-# 詳細表示
-# ==========
+# ========== 詳細表示 ==========
 @require_GET
 def vocabulary_detail_view(request, pk: int):
     """
     用語帳詳細：公開は誰でも、非公開は本人のみ
     """
-    vocab = get_object_or_404(
-        Vocabulary.objects.select_related("user").prefetch_related("tags"),
-        pk=pk,
-    )
+    qs = Vocabulary.objects.select_related("user")
+    if _has_vocab_tags():
+        qs = qs.prefetch_related("tags")
+    vocab = get_object_or_404(qs, pk=pk)
 
     if not vocab.is_public and (not request.user.is_authenticated or request.user != vocab.user):
-        return render(request, "403.html", status=404)
+        # 存在秘匿したい場合は 404 を返す
+        raise Http404()
 
     entries = (
         VocabularyTerm.objects
@@ -90,9 +92,7 @@ def vocabulary_detail_view(request, pk: int):
     })
 
 
-# ===============
-# 作成フォーム表示
-# ===============
+# =============== 作成フォーム表示 ===============
 @login_required
 @require_GET
 def vocabulary_create_view(request):
@@ -102,7 +102,7 @@ def vocabulary_create_view(request):
     - 既存 Tag を選択（新規作成はしない）
     """
     my_terms = Term.objects.filter(user=request.user).order_by("term_name")
-    all_tags = Tag.objects.order_by("name")
+    all_tags = Tag.objects.order_by("name") if _has_vocab_tags() else []
     return render(request, "vocabularies/create.html", {
         "values": {
             "title": "",
@@ -117,9 +117,7 @@ def vocabulary_create_view(request):
     })
 
 
-# ==========
-# 作成処理
-# ==========
+# =============== 作成処理 ===============
 @login_required
 @require_POST
 @transaction.atomic
@@ -128,12 +126,15 @@ def vocabulary_create_post(request):
     用語帳作成処理（POST）
     - タイトル必須
     - term_ids は自分の Term のみに制限
-    - tag_ids は既存 Tag のみ（作成はしない）
+    - tag_ids は既存 Tag のみ（作成はしない）※ tags がある場合のみ
     - VocabularyTerm は受信順に order_index を付けて作成
     """
     title = (request.POST.get("title") or "").strip()
     description = (request.POST.get("description") or "").strip()
-    is_public = bool(request.POST.get("is_public"))
+
+    raw_is_public = (request.POST.get("is_public") or "").strip().lower()
+    is_public = raw_is_public in ("1", "true", "on")  # 厳密化
+
     raw_term_ids = request.POST.getlist("term_ids")
     raw_tag_ids = request.POST.getlist("tag_ids")
 
@@ -155,7 +156,7 @@ def vocabulary_create_post(request):
 
     if errors:
         my_terms = Term.objects.filter(user=request.user).order_by("term_name")
-        all_tags = Tag.objects.order_by("name")
+        all_tags = Tag.objects.order_by("name") if _has_vocab_tags() else []
         return render(request, "vocabularies/create.html", {
             "values": {
                 "title": title,
@@ -177,8 +178,8 @@ def vocabulary_create_post(request):
         is_public=is_public,
     )
 
-    # タグ紐付け（既存のみ）
-    if tag_ids:
+    # タグ紐付け（既存のみ / tags がある場合のみ）
+    if _has_vocab_tags() and tag_ids:
         selected_tags = list(Tag.objects.filter(id__in=set(tag_ids)))
         if selected_tags:
             vocab.tags.add(*selected_tags)
@@ -201,15 +202,13 @@ def vocabulary_create_post(request):
     return redirect("vocabularies:detail", pk=vocab.pk)
 
 
-# ==========================
-# 他人の用語帳を探す（公開）
-# ==========================
+# ========================== 他人の用語帳を探す（公開） ==========================
 @require_GET
 def discover_vocabularies_view(request):
     """
     他ユーザーの用語帳（公開のみ）
     - ?q=     タイトル / 説明 / 含まれる用語名 / 用語説明 / 用語帳タグ名
-    - ?tag=<id>  Vocabulary.tags で絞り込み
+    - ?tag=<id>  Vocabulary.tags で絞り込み（tags がある場合のみ）
     """
     q = (request.GET.get("q") or "").strip()
     tag = (request.GET.get("tag") or "").strip()
@@ -217,44 +216,40 @@ def discover_vocabularies_view(request):
     qs = (
         Vocabulary.objects
         .select_related("user")
-        .prefetch_related("tags")
         .annotate(term_count=Count("terms", distinct=True))
         .filter(is_public=True)
         .order_by("-updated_at", "-created_at")
     )
+    if _has_vocab_tags():
+        qs = qs.prefetch_related("tags")
 
-    # 「他人の」に限定したい場合
+    # 「他人の」に限定
     if request.user.is_authenticated:
         qs = qs.exclude(user=request.user)
 
     if q:
-        qs = qs.filter(
-            Q(title__icontains=q) |
-            Q(description__icontains=q) |
-            Q(terms__term__term_name__icontains=q) |
-            Q(terms__term__description__icontains=q) |
-            Q(tags__name__icontains=q)
-        ).distinct()
+        base = Q(title__icontains=q) | Q(description__icontains=q) | Q(terms__term__term_name__icontains=q) | Q(terms__term__description__icontains=q)
+        if _has_vocab_tags():
+            base |= Q(tags__name__icontains=q)
+        qs = qs.filter(base).distinct()
 
     current_tag_id = None
-    if tag.isdigit():
+    if tag.isdigit() and _has_vocab_tags():
         current_tag_id = int(tag)
         qs = qs.filter(tags__id=current_tag_id).distinct()
 
     paginator = Paginator(qs, 24)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    return render(request, "vocabulariesSearch/search.html", {
+    return render(request, "vocabulariesSearch/vocabulariesSearch.html", {
         "q": q,
         "page_obj": page_obj,
-        "all_tags": Tag.objects.order_by("name"),
+        "all_tags": Tag.objects.order_by("name") if _has_vocab_tags() else [],
         "current_tag_id": current_tag_id,
     })
 
 
-# ======================
-# お気に入りに追加（POST）
-# ======================
+# ====================== お気に入りに追加（POST） ======================
 @login_required
 @require_POST
 def discover_add_favorite_view(request):
@@ -283,9 +278,7 @@ def discover_add_favorite_view(request):
     return redirect(next_url)
 
 
-# ===========================
-# 用語帳ごとの学習ページ & API
-# ===========================
+# =========================== 用語帳ごとの学習ページ & API ===========================
 @require_GET
 def vocabulary_learn_view(request, pk: int):
     """
@@ -294,7 +287,7 @@ def vocabulary_learn_view(request, pk: int):
     """
     vocab = get_object_or_404(Vocabulary.objects.select_related("user"), pk=pk)
     if not vocab.is_public and (not request.user.is_authenticated or request.user != vocab.user):
-        return render(request, "403.html", status=404)
+        raise Http404()
 
     # テンプレへAPIのURLを渡す
     return render(request, "vocabularies/learn.html", {
@@ -307,34 +300,50 @@ def vocabulary_learn_view(request, pk: int):
 def vocabulary_api_flashcards(request, pk: int):
     """
     用語帳に紐づくフラッシュカードJSON
-    - レスポンス: { items: [{id, term, definition, note, order_index}, ...] }
-    - ?q= でデッキ内検索（用語名/説明）
-    - 並び順は VocabularyTerm.order_index, id
+    - レスポンス: { items: [{id, term, desc, note, order_index, updated_at}], count }
+    - ?q= デッキ内検索（用語名/説明）
+    - ?order=random でランダム（既定は order_index, id）
+    - ?limit= 上限件数（既定1000, 1..5000）
     """
     vocab = get_object_or_404(Vocabulary.objects.select_related("user"), pk=pk)
     if not vocab.is_public and (not request.user.is_authenticated or request.user != vocab.user):
-        return JsonResponse({"items": []}, status=404)
+        # 存在秘匿の観点で 404
+        return JsonResponse({"items": [], "count": 0}, status=404)
 
     q = (request.GET.get("q") or "").strip()
+    order = (request.GET.get("order") or "").strip().lower()
+    try:
+        limit = int(request.GET.get("limit") or 1000)
+    except ValueError:
+        limit = 1000
+    limit = max(1, min(limit, 5000))
 
     qs = (
         VocabularyTerm.objects
         .select_related("term")
         .filter(vocabulary=vocab)
-        .order_by("order_index", "id")
     )
+
     if q:
         qs = qs.filter(
             Q(term__term_name__icontains=q) |
             Q(term__description__icontains=q)
         )
 
+    if order == "random":
+        qs = qs.order_by("?")
+    else:
+        qs = qs.order_by("order_index", "id")
+
+    qs = qs[:limit]
+
     items = [{
         "id": vt.term_id,
-        "term": vt.term.term_name,           # 表
-        "definition": vt.term.description,   # 裏
+        "term": vt.term.term_name,          # 表
+        "desc": vt.term.description,        # 裏は desc に統一
         "note": vt.note or "",
         "order_index": vt.order_index,
+        "updated_at": timezone.localtime(vt.term.updated_at).isoformat(),
     } for vt in qs]
 
-    return JsonResponse({"items": items})
+    return JsonResponse({"items": items, "count": len(items)}, json_dumps_params={"ensure_ascii": False})

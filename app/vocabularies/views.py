@@ -1,3 +1,4 @@
+# app/vocabularies/views.py
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -20,6 +21,7 @@ def _has_vocab_tags():
     has_field = any(getattr(f, "many_to_many", False) and f.name == "tags"
                     for f in Vocabulary._meta.get_fields())
     return bool(Tag) and has_field
+
 
 # =========================
 # 一覧（公開 or 自分の用語帳）
@@ -49,7 +51,12 @@ def vocabulary_list_view(request):
         qs = qs.filter(is_public=True)
 
     if q:
-        base = Q(title__icontains=q) | Q(description__icontains=q) | Q(terms__term__term_name__icontains=q) | Q(terms__term__description__icontains=q)
+        base = (
+            Q(title__icontains=q) |
+            Q(description__icontains=q) |
+            Q(terms__term__term__icontains=q) |        # ← term_name → term
+            Q(terms__term__definition__icontains=q)    # ← description → definition
+        )
         if _has_vocab_tags():
             base |= Q(tags__name__icontains=q)
         qs = qs.filter(base).distinct()
@@ -83,24 +90,29 @@ def vocabulary_detail_view(request, pk: int):
     qs = (
         Term.objects
         .filter(vocabulary_entries__vocabulary=vocab)
+        .prefetch_related("tags")
         .order_by('vocabulary_entries__order_index', 'vocabulary_entries__id')
         .distinct()
     )
 
-    # （任意）内部検索対応 ?q=
+    # 内部検索 ?q=
     q = (request.GET.get('q') or '').strip()
     if q:
-        qs = qs.filter(Q(term_name__icontains=q) | Q(description__icontains=q))
-
-    # ページング
+        qs = qs.filter(Q(term__icontains=q) | Q(definition__icontains=q))
+    tag_id = (request.GET.get("tag") or "").strip()
+    if tag_id.isdigit():
+        qs = qs.filter(tags__id=int(tag_id)).distinct() 
+    
     paginator = Paginator(qs, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
 
-    # terms/termslist.html を使う。selected_vocab があれば“用語帳内一覧”として表示される想定
+    # terms/termslist.html を流用（selected_vocab で見出しやリンクの ?vocab 付与を切替）
     return render(request, "terms/termslist.html", {
-        "page_obj": page_obj,        # ← Term のページング結果
+        "page_obj": page_obj,
         "q": q,
-        "selected_vocab": vocab,     # ← これがあるとテンプレで「用語帳用の見出し・導線」に切替可
+        "selected_vocab": vocab,
+        "all_tags": Tag.objects.order_by("name") if Tag else [],
+        "current_tag_id": int(tag_id) if tag_id.isdigit() else None,
     })
 
 
@@ -110,19 +122,13 @@ def vocabulary_detail_view(request, pk: int):
 def vocabulary_create_view(request):
     """
     用語帳作成フォーム
-    - 自分の Term（term_name/description）から選択
+    - 自分の Term（term/definition）から選択
     - 既存 Tag を選択（新規作成はしない）
     """
-    my_terms = Term.objects.filter(user=request.user).order_by("term_name")
+    my_terms = Term.objects.filter(user=request.user).order_by("term")
     all_tags = Tag.objects.order_by("name") if _has_vocab_tags() else []
     return render(request, "vocabularies/create.html", {
-        "values": {
-            "title": "",
-            "description": "",
-            "is_public": False,
-            "term_ids": [],
-            "tag_ids": [],
-        },
+        "values": {"title": "", "description": "", "is_public": False, "term_ids": [], "tag_ids": []},
         "errors": {},
         "my_terms": my_terms,
         "all_tags": all_tags,
@@ -137,7 +143,7 @@ def vocabulary_create_post(request):
     """
     用語帳作成処理（POST）
     - タイトル必須
-    - term_ids は自分の Term のみに制限
+    - term_ids は **自分の** Term のみに制限
     - tag_ids は既存 Tag のみ（作成はしない）※ tags がある場合のみ
     - VocabularyTerm は受信順に order_index を付けて作成
     """
@@ -145,7 +151,7 @@ def vocabulary_create_post(request):
     description = (request.POST.get("description") or "").strip()
 
     raw_is_public = (request.POST.get("is_public") or "").strip().lower()
-    is_public = raw_is_public in ("1", "true", "on")  # 厳密化
+    is_public = raw_is_public in ("1", "true", "on")
 
     raw_term_ids = request.POST.getlist("term_ids")
     raw_tag_ids = request.POST.getlist("tag_ids")
@@ -154,7 +160,6 @@ def vocabulary_create_post(request):
     if not title:
         errors["title"] = "必須です。"
 
-    # term_ids: 数値のみ抽出・順序維持（重複除去）
     ordered_term_ids, seen_terms = [], set()
     for x in raw_term_ids:
         if x.isdigit():
@@ -163,11 +168,10 @@ def vocabulary_create_post(request):
                 ordered_term_ids.append(i)
                 seen_terms.add(i)
 
-    # tag_ids: 数値のみ
     tag_ids = [int(x) for x in raw_tag_ids if x.isdigit()]
 
     if errors:
-        my_terms = Term.objects.filter(user=request.user).order_by("term_name")
+        my_terms = Term.objects.filter(user=request.user).order_by("term")
         all_tags = Tag.objects.order_by("name") if _has_vocab_tags() else []
         return render(request, "vocabularies/create.html", {
             "values": {
@@ -182,7 +186,6 @@ def vocabulary_create_post(request):
             "all_tags": all_tags,
         }, status=400)
 
-    # 用語帳作成
     vocab = Vocabulary.objects.create(
         user=request.user,
         title=title,
@@ -190,16 +193,12 @@ def vocabulary_create_post(request):
         is_public=is_public,
     )
 
-    # タグ紐付け（既存のみ / tags がある場合のみ）
     if _has_vocab_tags() and tag_ids:
         selected_tags = list(Tag.objects.filter(id__in=set(tag_ids)))
         if selected_tags:
             vocab.tags.add(*selected_tags)
 
-    # 自分の用語だけを順番通りに登録（unique_together(vocabulary, term) に配慮）
-    my_terms_by_id = {
-        t.id: t for t in Term.objects.filter(user=request.user, id__in=ordered_term_ids)
-    }
+    my_terms_by_id = {t.id: t for t in Term.objects.filter(user=request.user, id__in=ordered_term_ids)}
     for idx, tid in enumerate(ordered_term_ids):
         term = my_terms_by_id.get(tid)
         if term:
@@ -219,7 +218,7 @@ def vocabulary_create_post(request):
 def discover_vocabularies_view(request):
     """
     他ユーザーの用語帳（公開のみ）
-    - ?q=     タイトル / 説明 / 含まれる用語名 / 用語説明 / 用語帳タグ名
+    - ?q= タイトル / 説明 / 含まれる用語名 / 用語説明 / 用語帳タグ名
     - ?tag=<id>  Vocabulary.tags で絞り込み（tags がある場合のみ）
     """
     q = (request.GET.get("q") or "").strip()
@@ -235,12 +234,16 @@ def discover_vocabularies_view(request):
     if _has_vocab_tags():
         qs = qs.prefetch_related("tags")
 
-    # 「他人の」に限定
     if request.user.is_authenticated:
         qs = qs.exclude(user=request.user)
 
     if q:
-        base = Q(title__icontains=q) | Q(description__icontains=q) | Q(terms__term__term_name__icontains=q) | Q(terms__term__description__icontains=q)
+        base = (
+            Q(title__icontains=q) |
+            Q(description__icontains=q) |
+            Q(terms__term__term__icontains=q) |
+            Q(terms__term__definition__icontains=q)
+        )
         if _has_vocab_tags():
             base |= Q(tags__name__icontains=q)
         qs = qs.filter(base).distinct()
@@ -265,10 +268,6 @@ def discover_vocabularies_view(request):
 @login_required
 @require_POST
 def discover_add_favorite_view(request):
-    """
-    お気に入り追加（UserFavoriteVocabulary）
-    POST: vocabulary_id, next(任意)
-    """
     vocab_id = (request.POST.get("vocabulary_id") or "").strip()
     next_url = request.POST.get("next") or request.META.get("HTTP_REFERER") or reverse("vocabularies:list")
 
@@ -302,7 +301,6 @@ def vocabulary_learn_view(request, pk: int):
     if not vocab.is_public and (not request.user.is_authenticated or request.user != vocab.user):
         raise Http404()
 
-    # 初期表示カード（任意：デッキの先頭を開く）
     first_term_id = (
         VocabularyTerm.objects
         .filter(vocabulary=vocab)
@@ -312,10 +310,10 @@ def vocabulary_learn_view(request, pk: int):
     )
 
     return render(request, "terms/terms.html", {
-        "selected_vocab": vocab,                        # ← デッキ文脈
-        "initial_term_id": first_term_id,               # ← 先頭カード（無ければ None）
-        "q": (request.GET.get("q") or "").strip(),      # ← 検索を引き継ぎたい場合
-        "order": (request.GET.get("order") or "").strip().lower(),  # ← random 等
+        "selected_vocab": vocab,
+        "initial_term_id": first_term_id,
+        "q": (request.GET.get("q") or "").strip(),
+        "order": (request.GET.get("order") or "").strip().lower(),
     })
 
 
@@ -330,7 +328,6 @@ def vocabulary_api_flashcards(request, pk: int):
     """
     vocab = get_object_or_404(Vocabulary.objects.select_related("user"), pk=pk)
     if not vocab.is_public and (not request.user.is_authenticated or request.user != vocab.user):
-        # 存在秘匿の観点で 404
         return JsonResponse({"items": [], "count": 0}, status=404)
 
     q = (request.GET.get("q") or "").strip()
@@ -341,18 +338,16 @@ def vocabulary_api_flashcards(request, pk: int):
         limit = 1000
     limit = max(1, min(limit, 5000))
 
-    qs = (
-        VocabularyTerm.objects
-        .select_related("term")
-        .filter(vocabulary=vocab)
-    )
+    tag_id = (request.GET.get("tag") or "").strip()
+    qs = VocabularyTerm.objects.select_related("term").prefetch_related("term__tags").filter(vocabulary=vocab)
 
     if q:
         qs = qs.filter(
-            Q(term__term_name__icontains=q) |
-            Q(term__description__icontains=q)
+            Q(term__term__icontains=q) |            # ← term_name → term
+            Q(term__definition__icontains=q)        # ← description → definition
         )
-
+    if tag_id.isdigit():
+        qs = qs.filter(term__tags__id=int(tag_id)).distinct()
     if order == "random":
         qs = qs.order_by("?")
     else:
@@ -362,9 +357,10 @@ def vocabulary_api_flashcards(request, pk: int):
 
     items = [{
         "id": vt.term_id,
-        "term": vt.term.term_name,          # 表
-        "desc": vt.term.description,        # 裏は desc に統一
+        "term": vt.term.term,                 # 表
+        "desc": vt.term.definition,           # 裏（desc に統一）
         "note": vt.note or "",
+        "tags": [tg.name for tg in vt.term.tags.all()],
         "order_index": vt.order_index,
         "updated_at": timezone.localtime(vt.term.updated_at).isoformat(),
     } for vt in qs]

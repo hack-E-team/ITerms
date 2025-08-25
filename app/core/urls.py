@@ -1,6 +1,7 @@
 # app/core/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -12,6 +13,6 @@ urlpatterns = [
     path('vocabularies/', include('vocabularies.urls')),  # app_name="vocabularies"
     path('quizzes/', include('quizzes.urls')),            # app_name="quizzes"
     path('sharing/', include('sharing.urls')),            # app_name="sharing"
-
+    path("", RedirectView.as_view(pattern_name="accounts:login", permanent=False)),
 ]
 

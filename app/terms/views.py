@@ -27,8 +27,8 @@ def terms_list_view(request):
     """
     q = (request.GET.get("q") or "").strip()
     vocab = (request.GET.get("vocab") or "").strip()
-
-    qs = Term.objects.all()
+    tag_id = (request.GET.get("tag") or "").strip()
+    qs = Term.objects.all().prefetch_related("tags")
 
     selected_vocab = None
     if vocab.isdigit():
@@ -44,6 +44,9 @@ def terms_list_view(request):
             Q(definition__icontains=q) |
             Q(tags__name__icontains=q)
         ).distinct()
+        
+    if tag_id.isdigit():
+        qs = qs.filter(tags__id=int(tag_id)).distinct()
 
     qs = qs.order_by("-updated_at", "-created_at")
 
@@ -54,6 +57,8 @@ def terms_list_view(request):
         "page_obj": page_obj,
         "q": q,
         "selected_vocab": selected_vocab,
+        "all_tags": Tag.objects.order_by("name"),  # フィルタUI用（任意）
+        "current_tag_id": int(tag_id) if tag_id.isdigit() else None,  # ページャで引き継ぐ用
     })
 
 
@@ -82,18 +87,21 @@ def term_detail_page(request, pk: int):
         term=term, vocabulary__is_public=True
     ).exists()
 
-    in_my_vocab = False
     if vocab_id.isdigit():
         via_vocab = get_object_or_404(Vocabulary, id=int(vocab_id))
         if not (via_vocab.is_public or via_vocab.user_id == request.user.id):
             raise Http404()
         vt = VocabularyTerm.objects.filter(vocabulary=via_vocab, term=term).first()
-        in_my_vocab = bool(vt) and (via_vocab.user_id == request.user.id)
 
-    if not (in_public_vocab or in_my_vocab or via_vocab is None):
-        # 公開にも自分デッキにも無い場合は非許可
-        raise Http404()
-
+    if via_vocab:
+        # ?vocab 指定時：そのデッキに含まれていて、かつ公開 or 自分のデッキ
+        if not (vt and (via_vocab.is_public or via_vocab.user_id == request.user.id)):
+            raise Http404()
+    else:
+        # ?vocab 無し：公開用語集に含まれる用語のみ許可
+        if not in_public_vocab:
+            raise Http404()
+        
     return render(request, "terms/terms.html", {
         "initial_term_id": term.id,
         "selected_vocab": via_vocab,  # None の場合もあり
@@ -165,6 +173,7 @@ def terms_api_flashcards(request):
     """
     q = (request.GET.get("q") or "").strip()
     vocab = (request.GET.get("vocab") or "").strip()
+    tag_id = (request.GET.get("tag") or "").strip()
     order = (request.GET.get("order") or "").strip().lower()
     try:
         limit = int(request.GET.get("limit") or 500)
@@ -177,10 +186,12 @@ def terms_api_flashcards(request):
         if not (v.is_public or v.user_id == request.user.id):
             return JsonResponse({"items": [], "count": 0}, status=403)
 
-        qs = VocabularyTerm.objects.select_related("term").filter(vocabulary=v)
+        qs = VocabularyTerm.objects.select_related("term").filter(vocabulary=v).prefetch_related("term__tags")
         if q:
             qs = qs.filter(Q(term__term__icontains=q) | Q(term__definition__icontains=q) |
                            Q(term__tags__name__icontains=q)).distinct()
+        if tag_id.isdigit():
+            qs = qs.filter(term__tags__id=int(tag_id)).distinct()
         qs = qs.order_by("?") if order == "random" else qs.order_by("order_index", "id")
         qs = qs[:limit]
 
@@ -193,10 +204,13 @@ def terms_api_flashcards(request):
         } for vt in qs]
 
     else:
-        qs = Term.objects.all()
+        qs = Term.objects.all().prefetch_related("tags")
         if q:
             qs = qs.filter(Q(term__icontains=q) | Q(definition__icontains=q) |
                            Q(tags__name__icontains=q)).distinct()
+        if tag_id.isdigit():
+            qs = qs.filter(tags__id=int(tag_id)).distinct()
+        
         qs = qs.order_by("?") if order == "random" else qs.order_by("-updated_at", "-created_at")
         qs = qs[:limit]
 
@@ -217,7 +231,7 @@ def terms_api_flashcards(request):
 @require_GET
 @login_required
 def term_api_detail(request, term_id: int):
-    t = get_object_or_404(Term, id=term_id)
+    t = get_object_or_404(Term.objects.prefetch_related("tags"), id=term_id)
 
     # 公開デッキ or 自分のデッキに含まれていれば閲覧可（Termに所有者が無い想定）
     in_public_vocab = VocabularyTerm.objects.filter(term=t, vocabulary__is_public=True).exists()

@@ -1,27 +1,40 @@
+{# templates/sign_up/sign_up.html #}
 {% extends 'common/base.html' %}
 
 {% block main_content %}
 <div class="main-content">
-    <div class="card-register-card">
-        <h2 class="form-title">新規登録</h2>
-        <form action="" method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <input type="text" name="nickname" placeholder="ニックネーム" required>
-            </div>
-            <div class="form-group">
-                <input type="email" name="email" placeholder="メールアドレス" required>
-            </div>
-            <div class="form-group">
-                <input type="password" name="password" placeholder="パスワード" required>
-            </div>
-            <div class="form-group">
-                <input type="password" name="password_confirm" placeholder="パスワード（確認用）" required>
-            </div>
-            <div class="div-button-container">
-                <button type="submit" class="signup-button">登録</button>
-            </div>
-        </form>
-    </div>
+  <div class="card-register-card">
+    <h2 class="form-title">新規登録</h2>
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form action="{% url 'accounts:signup' %}" method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <input type="text" name="nickname" placeholder="ニックネーム">
+      </div>
+
+      <div class="form-group">
+        <input type="email" name="email" placeholder="メールアドレス" required>
+      </div>
+
+      <div class="form-group">
+        <input type="password" name="password" placeholder="パスワード" required>
+      </div>
+      <div class="form-group">
+        <input type="password" name="password_confirm" placeholder="パスワード（確認用）" required>
+      </div>
+      <div class="div-button-container">
+        <button type="submit" class="signup-button">登録</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

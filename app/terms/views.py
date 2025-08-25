@@ -59,7 +59,7 @@ def terms_list_view(request):
     paginator = Paginator(qs, 20)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    return render(request, "terms/termslist.html", {
+    return render(request, "terms/terms.html", {
         "page_obj": page_obj,
         "q": q,
         "selected_vocab": selected_vocab,

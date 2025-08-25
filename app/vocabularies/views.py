@@ -9,14 +9,17 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 from django.utils import timezone
 
-from .models import Vocabulary, VocabularyTerm, Term, UserFavoriteVocabulary
-from terms.models import Tag  # Vocabulary.tags (M2M) を使う想定
+from .models import Vocabulary, VocabularyTerm, UserFavoriteVocabulary
+from terms.models import Term
+try:
+    from terms.models import Tag
+except Exception:
+    Tag = None
 
-# --- Vocabulary.tags が未定義でも死なないようにするヘルパ ---
 def _has_vocab_tags():
-    # M2M 'tags' フィールドが存在するかを動的に確認
-    return any(getattr(f, "many_to_many", False) and f.name == "tags" for f in Vocabulary._meta.get_fields())
-
+    has_field = any(getattr(f, "many_to_many", False) and f.name == "tags"
+                    for f in Vocabulary._meta.get_fields())
+    return bool(Tag) and has_field
 
 # =========================
 # 一覧（公開 or 自分の用語帳）
@@ -68,27 +71,36 @@ def vocabulary_list_view(request):
 @require_GET
 def vocabulary_detail_view(request, pk: int):
     """
-    用語帳詳細：公開は誰でも、非公開は本人のみ
+    用語帳詳細：公開は誰でも、非公開は本人のみ。
     """
-    qs = Vocabulary.objects.select_related("user")
-    if _has_vocab_tags():
-        qs = qs.prefetch_related("tags")
-    vocab = get_object_or_404(qs, pk=pk)
+    vocab = get_object_or_404(Vocabulary.objects.select_related("user"), pk=pk)
 
+    # アクセス権
     if not vocab.is_public and (not request.user.is_authenticated or request.user != vocab.user):
-        # 存在秘匿したい場合は 404 を返す
         raise Http404()
 
-    entries = (
-        VocabularyTerm.objects
-        .select_related("term")
-        .filter(vocabulary=vocab)
-        .order_by("order_index", "id")
+    # 用語帳に含まれる Term を、VocabularyTerm.order_index の順に並べる
+    qs = (
+        Term.objects
+        .filter(vocabulary_entries__vocabulary=vocab)
+        .order_by('vocabulary_entries__order_index', 'vocabulary_entries__id')
+        .distinct()
     )
 
-    return render(request, "vocabularies/detail.html", {
-        "vocab": vocab,
-        "entries": entries,
+    # （任意）内部検索対応 ?q=
+    q = (request.GET.get('q') or '').strip()
+    if q:
+        qs = qs.filter(Q(term_name__icontains=q) | Q(description__icontains=q))
+
+    # ページング
+    paginator = Paginator(qs, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    # terms/termslist.html を使う。selected_vocab があれば“用語帳内一覧”として表示される想定
+    return render(request, "terms/termslist.html", {
+        "page_obj": page_obj,        # ← Term のページング結果
+        "q": q,
+        "selected_vocab": vocab,     # ← これがあるとテンプレで「用語帳用の見出し・導線」に切替可
     })
 
 
@@ -282,17 +294,28 @@ def discover_add_favorite_view(request):
 @require_GET
 def vocabulary_learn_view(request, pk: int):
     """
-    用語帳のフラッシュカード画面
+    用語帳の学習ページ。テンプレは terms/terms.html を流用。
     - 非公開は作成者のみ
+    - terms.html 側のJSが /terms/api/flashcards/?vocab=<id> を叩く
     """
     vocab = get_object_or_404(Vocabulary.objects.select_related("user"), pk=pk)
     if not vocab.is_public and (not request.user.is_authenticated or request.user != vocab.user):
         raise Http404()
 
-    # テンプレへAPIのURLを渡す
-    return render(request, "vocabularies/learn.html", {
-        "vocab": vocab,
-        "api_url": reverse("vocabularies:api_fc", kwargs={"pk": vocab.pk}),
+    # 初期表示カード（任意：デッキの先頭を開く）
+    first_term_id = (
+        VocabularyTerm.objects
+        .filter(vocabulary=vocab)
+        .order_by("order_index", "id")
+        .values_list("term_id", flat=True)
+        .first()
+    )
+
+    return render(request, "terms/terms.html", {
+        "selected_vocab": vocab,                        # ← デッキ文脈
+        "initial_term_id": first_term_id,               # ← 先頭カード（無ければ None）
+        "q": (request.GET.get("q") or "").strip(),      # ← 検索を引き継ぎたい場合
+        "order": (request.GET.get("order") or "").strip().lower(),  # ← random 等
     })
 
 

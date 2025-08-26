@@ -11,7 +11,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="{% static 'common/css/base.css' %}">
-<link rel="stylesheet" href="{% static 'terms/css/terms.css' %}">
+<link rel="stylesheet" href="{% static 'vocabulariscreate/css/vocabulariescreate.css' %}">
 </head>
 <body>
 
@@ -32,24 +32,26 @@
 </div>
 
 <main>
-    <h1>用語学習</h1>
-
-    <div class="container">
-        <button id="prev-btn" class="navigation-btn">◀</button>
-
-    <div class="card-and-info">
-        <div id="flashcard-container" class="flashcard-container">
-    <div id="flashcard" class="flashcard">
-    <div id="front" class="front"></div>
-    <div id="back" class="back"></div>
+    <h1>用語帳作成</h1>
+    <div class="vocab-title-area">
+        <label for="vocab-title" class="vocab-label">用語帳タイトル</label><br>
+        <input type="text" id="vocab-title" name="vocab-title" class="vocab-title-input">
     </div>
+    
+    <div class="tag-select-area">
+        <label for="tag-select" class="vocab-label">タグで絞り込み</label><br>
+    <select id="tag-select" class="tag-select">
+        <option value="all">すべて</option>
+        {% for tag in tags %}
+            <option value="{{ tag.name }}">{{ tag.name }}</option>
+        {% endfor %}
+    </select>
     </div>
-    <div class="card-info">タップで裏返す</div>
-        <a href="list.html" id="list-link" class="list-link">用語を一覧で表示</a>
-    </div>
-
-    <button id="next-btn" class="navigation-btn">▶</button>
-    </div>
+    
+    <form id="terms-form">
+        <ul id="terms-list" class="terms-list"></ul>
+        <button type="submit" id="create-btn" class="create-btn">作成完了</button>
+    </form>
 </main>
 
 <footer>
@@ -61,7 +63,7 @@
     </div>
 </footer>
 
-<script src="{% static 'terms/js/terms.js' %}"></script>
 <script src="{% static 'common/js/hamuburger.js' %}"></script>
+<script src="{% static 'vocabulariscreate/js/vocabulariescreate.js' %}"></script>
 </body>
 </html>

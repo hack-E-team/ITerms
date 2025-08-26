@@ -8,8 +8,13 @@ from django.http import JsonResponse, Http404
 from django.utils import timezone
 from django.contrib import messages
 
+<<<<<<< HEAD
 from .models import Term, Tag
 from vocabularies.models import Vocabulary, VocabularyTerm
+=======
+def dummy_terms_view(request):
+    return render(request, 'terms/terms.html')
+>>>>>>> cda392f6554ed2df3fa07bb8229edc48dacf8dbb
 
 
 # =========================

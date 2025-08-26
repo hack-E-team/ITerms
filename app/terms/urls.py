@@ -5,6 +5,7 @@ from . import views
 app_name = "terms"
 
 urlpatterns = [
+<<<<<<< HEAD
     path("", views.terms_list_view, name="list"),
 
     # 用語作成
@@ -18,3 +19,8 @@ urlpatterns = [
     # 詳細（動的パスは最後に）
     path("<int:pk>/", views.term_detail_page, name="detail"),
 ]
+=======
+    path('', views.dummy_terms_view, name='terms'),
+    path('createterms/', views.dummy_create_terms_view, name='createterms'),  # 用語作成
+]
+>>>>>>> cda392f6554ed2df3fa07bb8229edc48dacf8dbb

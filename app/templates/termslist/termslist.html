@@ -11,7 +11,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="{% static 'common/css/base.css' %}">
-<link rel="stylesheet" href="{% static 'terms/css/terms.css' %}">
+<link rel="stylesheet" href="{% static 'termslist/css/termslist.css' %}">
 </head>
 <body>
 
@@ -32,24 +32,14 @@
 </div>
 
 <main>
-    <h1>用語学習</h1>
-
-    <div class="container">
-        <button id="prev-btn" class="navigation-btn">◀</button>
-
-    <div class="card-and-info">
-        <div id="flashcard-container" class="flashcard-container">
-    <div id="flashcard" class="flashcard">
-    <div id="front" class="front"></div>
-    <div id="back" class="back"></div>
-    </div>
-    </div>
-    <div class="card-info">タップで裏返す</div>
-        <a href="list.html" id="list-link" class="list-link">用語を一覧で表示</a>
-    </div>
-
-    <button id="next-btn" class="navigation-btn">▶</button>
-    </div>
+    <h1>用語一覧</h1>
+    <ul class="terms-list">
+        {% for term in terms %}
+            <li>{{ term.name }}</li>
+        {% empty %}
+            <li>用語がありません</li>
+        {% endfor %}
+    </ul>
 </main>
 
 <footer>
@@ -61,7 +51,6 @@
     </div>
 </footer>
 
-<script src="{% static 'terms/js/terms.js' %}"></script>
 <script src="{% static 'common/js/hamuburger.js' %}"></script>
 </body>
 </html>

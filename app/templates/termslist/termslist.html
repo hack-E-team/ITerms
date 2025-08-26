@@ -34,11 +34,11 @@
 <main>
     <h1>用語一覧</h1>
     <ul class="terms-list">
-        <li>API</li>
-        <li>クラウド</li>
-        <li>アルゴリズム</li>
-        <li>データベース</li>
-        <li>ネットワーク</li>
+        {% for term in terms %}
+            <li>{{ term.name }}</li>
+        {% empty %}
+            <li>用語がありません</li>
+        {% endfor %}
     </ul>
 </main>
 

@@ -40,13 +40,12 @@
     
     <div class="tag-select-area">
         <label for="tag-select" class="vocab-label">タグで絞り込み</label><br>
-        <select id="tag-select" class="tag-select">
-            <option value="all">すべて</option>
-            <option value="ネットワーク">ネットワーク</option>
-            <option value="プログラミング">プログラミング</option>
-            <option value="データベース">データベース</option>
-            <option value="セキュリティ">セキュリティ</option>
-        </select>
+    <select id="tag-select" class="tag-select">
+        <option value="all">すべて</option>
+        {% for tag in tags %}
+            <option value="{{ tag.name }}">{{ tag.name }}</option>
+        {% endfor %}
+    </select>
     </div>
     
     <form id="terms-form">

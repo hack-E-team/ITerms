@@ -61,6 +61,13 @@
     </div>
 </footer>
 
+<script>
+    const cards = [
+        {% for term in terms %}
+            { term: "{{ term.word|escapejs }}", desc: "{{ term.description|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
 <script src="{% static 'terms/js/terms.js' %}"></script>
 <script src="{% static 'common/js/hamuburger.js' %}"></script>
 </body>

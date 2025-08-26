@@ -11,7 +11,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="{% static 'common/css/base.css' %}">
-<link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'termslist/css/termslist.css' %}">
 </head>
 <body>
 
@@ -32,17 +32,14 @@
 </div>
 
 <main>
-    <h1>ダッシュボード</h1>
-
-    <div class="main-buttons">
-        <a href="{% url 'vocabularies:myvocabularies' %}">用語帳一覧</a>
-        <a href="{% url 'vocabularies:vocabulariesSearch' %}">用語帳を探す</a>
-
-        <div class="inline-buttons">
-            <a href="{% url 'vocabularies:vocabulariescreate' %}">用語帳作成</a>
-            <a href="{% url 'terms:createterms' %}">用語登録</a>
-        </div>
-    </div>
+    <h1>用語一覧</h1>
+    <ul class="terms-list">
+        {% for term in terms %}
+            <li>{{ term.name }}</li>
+        {% empty %}
+            <li>用語がありません</li>
+        {% endfor %}
+    </ul>
 </main>
 
 <footer>

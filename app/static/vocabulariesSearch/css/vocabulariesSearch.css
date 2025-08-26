@@ -109,7 +109,7 @@ h1 {
     color: #555;
 }
 
-.edit-btn {
+.add-btn {
     display: inline-block;
     padding: 8px 20px;
     background: #399ACA;
@@ -121,6 +121,6 @@ h1 {
     margin-right: 24px;
 }
 
-.edit-btn:hover {
+.add-btn:hover {
     background: #007bff;
 }

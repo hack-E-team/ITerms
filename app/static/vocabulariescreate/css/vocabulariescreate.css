@@ -48,6 +48,102 @@ header img {
 }
 
 /* ====================
+メインコンテンツ (モバイル)
+==================== */
+main {
+    padding: 16px;
+    padding-top: 0;
+}
+
+h1 {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    text-align: left;
+    color: #fff;
+    font-size: 24px;
+    margin: 0;
+    padding: 16px;
+    background-color: #399ACA;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.vocab-title-area {
+    margin-top: 90px;
+    margin-bottom: 24px;
+    max-width: 95%;
+}
+
+.vocab-label {
+    font-weight: bold;
+}
+
+.vocab-title-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 8px;
+    font-size: 16px;
+}
+
+.tag-select-area {
+    margin-bottom: 24px;
+}
+
+.tag-select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 8px;
+    font-size: 16px;
+}
+
+.terms-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 32px;
+    margin-top: 0;
+}
+
+.terms-list li {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(57,154,202,0.08);
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: box-shadow 0.2s;
+}
+
+.terms-list li:hover {
+    box-shadow: 0 4px 16px rgba(57,154,202,0.16);
+}
+
+.create-btn {
+    width: 100%;
+    padding: 16px;
+    background: #399ACA;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 100px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.create-btn:hover {
+    background: #007bff;
+}
+
+/* ====================
 フッター (モバイル)
 ==================== */
 footer {
@@ -84,7 +180,7 @@ footer {
     padding: 0px 32px 0px 0px;
 }
 
-.fas.fa-home {
+.fas.fa-plus {
     color: #fff;
 }
 

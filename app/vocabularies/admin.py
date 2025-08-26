@@ -8,7 +8,7 @@ class VocabularyAdmin(admin.ModelAdmin):
     list_filter = ('is_public', 'created_at')
     search_fields = ('title', 'description')
     raw_id_fields = ('user',)
-    date_hierarchy = 'created_at'
+#    date_hierarchy = 'created_at'
     ordering = ('-created_at',)
 
 

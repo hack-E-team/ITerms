@@ -1,15 +1,18 @@
+# app/core/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('dashboard/', include('dashboard.urls')),
-    path('terms/', include('terms.urls')),
-    path('vocabularies/', include('vocabularies.urls')),
-    path('quizzes/', include('quizzes.urls')),
-    path("health/", include("health.urls")),
-    path('quizzes/api/dashboard/', include('dashboard.urls')), 
-    path('sharing/', include('sharing.urls', namespace='sharing')),
-    path('accounts/', include('accounts.urls', namespace='accounts')),
+
+    # 各アプリ
+    path('accounts/', include('accounts.urls')),          # app_name="accounts"
+    path('dashboard/', include('dashboard.urls')),        # app_name="dashboard"
+    path('terms/', include('terms.urls')),                # app_name="terms"
+    path('vocabularies/', include('vocabularies.urls')),  # app_name="vocabularies"
+    path('quizzes/', include('quizzes.urls')),            # app_name="quizzes"
+    path('sharing/', include('sharing.urls')),            # app_name="sharing"
+    path("", RedirectView.as_view(pattern_name="accounts:login", permanent=False)),
 ]
 

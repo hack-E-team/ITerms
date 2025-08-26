@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITerms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{% static 'common/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'vocabularies/css/vocabularies.css' %}">
+</head>
+<body>
+
+
+<header>
+    <img src="{% static 'common/img/ITerm-logo.png' %}" alt="サイトロゴ">
+    <a href="#" class="hamburger-menu" id="menuBtn">
+        <i class="fas fa-bars" id="menuIcon"></i>
+        <i class="fas fa-times" id="closeIcon" style="display:none;"></i>
+    </a>
+</header>
+
+<div class="menu-modal" id="menuModal">
+    <div class="menu-content">
+        <a href="{% url 'accounts:profile' %}">マイページ</a>
+        <a href="{% url 'accounts:logout' %}">ログアウト</a>
+    </div>
+</div>
+
+<main>
+    <h1>用語帳一覧</h1>
+    <div class="search-area">
+        <span class="search-icon"><i class="fas fa-search"></i></span>
+        <form method="get" action="">
+            <select class="tag-select" name="tag" onchange="this.form.submit()">
+                <option value="">タグを選択</option>
+                {% for tag in tags %}
+                    <option value="{{ tag.id }}" {% if tag.id|stringformat:"s" == request.GET.tag %}selected{% endif %}>{{ tag.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <span class="select-arrow">▼</span>
+    </div>
+
+    <div class="flashcard-list">
+        {% for vocab in vocabularies %}
+        <div class="flashcard-card">
+            <a href="#" class="card-link">
+                <div class="card-info">
+                    <div class="card-title">{{ vocab.title }}</div>
+                    <div class="card-count">用語数: {{ vocab.terms.count }}</div>
+                    <div class="card-author">作成者: {{ vocab.author.username }}</div>
+                </div>
+            </a>
+            <a href="#" class="edit-btn">編集</a>
+        </div>
+        {% empty %}
+        <div>用語帳がありません</div>
+        {% endfor %}
+    </div>
+
+</main>
+
+<footer>
+    <div class="footer-nav">
+        <a href="dashboard"><i class="fas fa-home"></i></a>
+        <a href="vocabularies"><i class="far fa-folder"></i></a>
+        <a href="createterms"><i class="fas fa-plus"></i></a>
+        <a href="vocabulariesSearch"><i class="fas fa-search"></i></a>
+    </div>
+</footer>
+
+<script src="{% static 'common/js/hamuburger.js' %}"></script>
+
+</body>
+</html>

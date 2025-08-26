@@ -1,33 +1,51 @@
+{# templates/accounts/login.html #}
+{% extends 'common/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン | ITerms</title>
-    <link rel="stylesheet" href="{% static 'accounts/css/accounts.css' %}">
-</head>
-<body>
-    <header class="header">
-        <img src="{% static 'common/img/ITerm-logo.png' %}" alt="ITerms ロゴ" class="logo">
-
-    </header>
-
-    <div class="main-visual">
-        <img src="{% static 'common/img/ITerm-main.png' %}" alt="ITerms メインビジュアル">
+{% block header %}
+<div class="div-login-header">
+  <div class="logo-container">
+    <img src="{% static 'common/img/ITerm-logo.png' %}" alt="ITerms Logo" class="header-logo">
+  </div>
+  <div class="div-register-button">
+    <a class="register-button" href="{% url 'accounts:signup' %}">無料登録</a>
+  </div>
+</div>
+{% endblock %}
+{% block main_content %}
+<div class="main-body">
+  <div class="main-content">
+    <div class="title-section">
+      <img src="{% static 'common/img/ITerm-main.png' %}" alt="ITerms Main" class="main-image">
     </div>
 
-    <div class="login-container">
-        <h2>ログイン</h2>
-        <form method="post">
-            {% csrf_token %}
-            <input type="email" name="username" placeholder="メールアドレス" required>
-            <input type="password" name="password" placeholder="パスワード" required>
-            <button type="submit">ログイン</button>
-        </form>
-        <div class="forgot-password">
-            <a href="#">パスワードを<br>お忘れの方はこちら</a>
+    <div class="form-section">
+      <h2 class="form-title">ログイン</h2>
+
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <form action="{% url 'accounts:login' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <input type="email" name="email" id="email" placeholder="メールアドレス" required>
         </div>
+        <div class="form-group">
+          <input type="password" name="password" id="password" placeholder="パスワード" required>
+        </div>
+        <p class="login-button-paragraph">
+          <button type="submit" class="login-button">ログイン</button>
+        </p>
+      </form>
+
+      <p class="password-reset-paragraph">
+        <a href="#" class="password-reset">パスワードをお忘れの方はこちら</a>
+      </p>
     </div>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

@@ -17,7 +17,7 @@ class Vocabulary(models.Model):
 class VocabularyTerm(models.Model):
      user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='vocabulary_terms', verbose_name='ユーザー')
      vocabulary = models.ForeignKey(Vocabulary, on_delete=models.CASCADE, related_name='terms', verbose_name='用語集')
-     term = models.ForeignKey('Term', on_delete=models.CASCADE, related_name='vocabulary_entries', verbose_name='用語')
+     term = models.ForeignKey('terms.Term', on_delete=models.CASCADE, related_name='vocabulary_entries', verbose_name='用語')
      note = models.TextField(blank=True, verbose_name='補足・メモ')
      order_index = models.PositiveIntegerField(default=0, verbose_name='並び順')
      created_at = models.DateTimeField(auto_now_add=True, verbose_name='作成日')
@@ -41,13 +41,3 @@ class UserFavoriteVocabulary(models.Model):
 
      def __str__(self):
          return f'{self.user.username} のお気に入り: {self.vocabulary.title}'
-     
-class Term(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='terms', verbose_name='作成者')
-    term_name = models.CharField(max_length=255, verbose_name='用語名')
-    description = models.TextField(blank=True, verbose_name='説明')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='作成日')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='更新日')
-
-    def __str__(self):
-        return self.term_name

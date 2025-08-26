@@ -5,9 +5,9 @@ from django.views.decorators.http import require_http_methods
 from .models import Quiz, QuizChoice, QuizHistory
 from terms.models import Term
 
-def dummy_quizzes_view(request):
+#def dummy_quizzes_view(request):
     
-    return render(request, 'quizzes/index.html')
+    #return render(request, 'quizzes/index.html')
 
 
 @login_required

@@ -26,8 +26,8 @@
 
 <div class="menu-modal" id="menuModal">
     <div class="menu-content">
-        <a href="#">マイページ</a>
-        <a href="#">ログアウト</a>
+        <a href="{% url 'accounts:profile' %}">マイページ</a>
+        <a href="{% url 'accounts:logout' %}">ログアウト</a>
     </div>
 </div>
 
@@ -35,12 +35,12 @@
     <h1>ダッシュボード</h1>
 
     <div class="main-buttons">
-        <a href="vocabularies">用語帳一覧</a>
-        <a href="vocabulariesSearch">用語帳を探す</a>
+        <a href="{% url 'vocabularies:myvocabularies' %}">用語帳一覧</a>
+        <a href="{% url 'vocabularies:vocabulariesSearch' %}">用語帳を探す</a>
 
         <div class="inline-buttons">
-            <a href="#">用語帳作成</a>
-            <a href="createterms">用語登録</a>
+            <a href="{% url 'vocabularies:vocabulariescreate' %}">用語帳作成</a>
+            <a href="{% url 'terms:createterms' %}">用語登録</a>
         </div>
     </div>
 </main>

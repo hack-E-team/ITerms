@@ -127,7 +127,7 @@ def vocabulary_create_view(request):
     """
     my_terms = Term.objects.filter(user=request.user).order_by("term")
     all_tags = Tag.objects.order_by("name") if _has_vocab_tags() else []
-    return render(request, "vocabularies/create.html", {
+    return render(request, "vocabulariescreate/vocabulariescreate.html", {
         "values": {"title": "", "description": "", "is_public": False, "term_ids": [], "tag_ids": []},
         "errors": {},
         "my_terms": my_terms,
@@ -173,7 +173,7 @@ def vocabulary_create_post(request):
     if errors:
         my_terms = Term.objects.filter(user=request.user).order_by("term")
         all_tags = Tag.objects.order_by("name") if _has_vocab_tags() else []
-        return render(request, "vocabularies/create.html", {
+        return render(request, "vocabulariescreate/vocabulariescreate.html", {
             "values": {
                 "title": title,
                 "description": description,

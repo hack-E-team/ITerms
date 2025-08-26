@@ -15,12 +15,12 @@ app_name = "vocabularies"
 
 urlpatterns = [
     # 一覧・作成
-    path("", vocabulary_list_view, name="list"),
-    path("create/", vocabulary_create_view, name="create"),
+    path("", vocabulary_list_view, name="myvocabularies"),
+    path("create/", vocabulary_create_view, name="vocabulariescreate"),
     path("create/submit/", vocabulary_create_post, name="create_post"),
 
     # 他人の用語帳を探す & お気に入り追加
-    path("discover/", discover_vocabularies_view, name="discover"),
+    path("discover/", discover_vocabularies_view, name="vocabulariesSearch"),
     # 互換のため両方の名前を用意（テンプレに discover_fav が残っていてもOK）
     path("discover/favorite/", discover_add_favorite_view, name="discover_favorite"),
     path("discover/fav/", discover_add_favorite_view, name="discover_fav"),

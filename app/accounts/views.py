@@ -12,7 +12,7 @@ UserModel = get_user_model()
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect("dashboard:home")
+        return redirect("dashboard:dashboard")
 
     if request.method == "POST":
         email = (request.POST.get("email") or "").strip()
@@ -22,7 +22,7 @@ def login_view(request):
         user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
-            next_url = request.GET.get("next") or "dashboard:home"
+            next_url = request.GET.get("next") or "dashboard:dashboard"
             return redirect(next_url)
 
         messages.error(request, "メールアドレスまたはパスワードが正しくありません。")
@@ -39,7 +39,7 @@ def logout_view(request):
 @require_http_methods(["GET", "POST"])
 def signup_view(request):
     if request.user.is_authenticated:
-        return redirect("dashboard:home")
+        return redirect("dashboard:dashboard")
 
     if request.method == "POST":
         email = (request.POST.get("email") or "").strip().lower()
@@ -78,7 +78,7 @@ def signup_view(request):
         user.save()
 
         login(request, user)
-        return redirect("dashboard:home")
+        return redirect("dashboard:dashboard")
 
     return render(request, "sign_up/sign_up.html")
 

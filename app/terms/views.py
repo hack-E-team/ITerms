@@ -8,13 +8,8 @@ from django.http import JsonResponse, Http404
 from django.utils import timezone
 from django.contrib import messages
 
-<<<<<<< HEAD
 from .models import Term, Tag
 from vocabularies.models import Vocabulary, VocabularyTerm
-=======
-def dummy_terms_view(request):
-    return render(request, 'terms/terms.html')
->>>>>>> cda392f6554ed2df3fa07bb8229edc48dacf8dbb
 
 
 # =========================
@@ -64,7 +59,7 @@ def terms_list_view(request):
     paginator = Paginator(qs, 20)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    return render(request, "terms/terms.html", {
+    return render(request, "termslist/termslist.html", {
         "page_obj": page_obj,
         "q": q,
         "selected_vocab": selected_vocab,

@@ -9,4 +9,4 @@ class User(AbstractUser):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新日')
 
     def __str__(self):
-        return self.username
+        return self.nickname

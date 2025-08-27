@@ -35,47 +35,32 @@
     <h1>用語帳一覧</h1>
     <div class="search-area">
         <span class="search-icon"><i class="fas fa-search"></i></span>
-        <select class="tag-select">
-            <option value="">タグを選択</option>
-            <option value="IT">IT</option>
-            <option value="基本情報">基本情報</option>
-            <option value="AWS">AWS</option>
-            <!-- タグ追加 -->
-        </select>
+        <form method="get" action="">
+            <select class="tag-select" name="tag" onchange="this.form.submit()">
+                <option value="">タグを選択</option>
+                {% for tag in tags %}
+                    <option value="{{ tag.id }}" {% if tag.id|stringformat:"s" == request.GET.tag %}selected{% endif %}>{{ tag.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
         <span class="select-arrow">▼</span>
     </div>
 
     <div class="flashcard-list">
+        {% for vocab in vocabularies %}
         <div class="flashcard-card">
             <a href="#" class="card-link">
                 <div class="card-info">
-                    <div class="card-title">IT</div>
-                    <div class="card-count">用語数: 50</div>
-                    <div class="card-author">作成者: 山田太郎</div>
+                    <div class="card-title">{{ vocab.title }}</div>
+                    <div class="card-count">用語数: {{ vocab.terms.count }}</div>
+                    <div class="card-author">作成者: {{ vocab.author.username }}</div>
                 </div>
             </a>
             <a href="#" class="edit-btn">編集</a>
         </div>
-        <div class="flashcard-card">
-            <a href="#" class="card-link">
-                <div class="card-info">
-                    <div class="card-title">基本情報</div>
-                    <div class="card-count">用語数: 120</div>
-                    <div class="card-author">作成者: 鈴木花子</div>
-                </div>
-            </a>
-            <a href="#" class="edit-btn">編集</a>
-        </div>
-        <div class="flashcard-card">
-            <a href="#" class="card-link">
-                <div class="card-info">
-                    <div class="card-title">AWS</div>
-                    <div class="card-count">用語数: 30</div>
-                    <div class="card-author">作成者: 佐藤健</div>
-                </div>
-            </a>
-            <a href="#" class="edit-btn">編集</a>
-        </div>
+        {% empty %}
+        <div>用語帳がありません</div>
+        {% endfor %}
     </div>
 
 </main>

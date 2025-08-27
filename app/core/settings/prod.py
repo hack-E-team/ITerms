@@ -21,6 +21,9 @@ STATICFILES_DIRS = [
     BASE_DIR / "app" / "static"
 ]
 
+FIXTURE_DIRS = [
+    BASE_DIR / 'app' / 'fixture',
+]
 
 # セキュリティ強化設定
 

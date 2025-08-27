@@ -35,7 +35,8 @@
 <main>
     <h1>用語登録</h1>
     <div id="form-list">
-        <form class="term-form">
+        <form method="post" class="term-form">
+        {% csrf_token %}
             <button type="button" class="remove-form-btn" style="align-self: flex-end;">×</button>
             <div class="form-group">
                 <input type="text" id="term" name="term" required placeholder="用語">
@@ -47,9 +48,9 @@
                 <div class="custom-select-container">
                     <div class="selected-tags">タグを選択...</div>
                     <div class="dropdown-menu">
-                        {% for tag in tags %}
+                        {% for tag in all_tags %}
                             <label>
-                                <input type="checkbox" name="tag" value="{{ tag.id }}">
+                                <input type="checkbox" name="tag_ids" value="{{ tag.name }}">
                                 <span>{{ tag.name }}</span>
                             </label>
                         {% endfor %}
@@ -60,7 +61,14 @@
     </div>
     <div class="form-buttons">
         <button type="button" id="add-form-btn" class="add-btn">用語追加</button>
-        <button type="button" id="submit-btn" class="register-btn">登録完了</button>
+        <button 
+            type="button" 
+            id="submit-btn" 
+            class="register-btn" 
+            data-create-url="{% url 'terms:create_post' %}"
+            data-list-url="{% url 'terms:list' %}">
+            登録完了
+        </button>
     </div>    
 </main>
 
@@ -74,6 +82,6 @@
 </footer>
 
 <script src="{% static 'common/js/hamuburger.js' %}"></script>
-<script src="{% static 'createterms/js/TermRegistration.js' %}"></script>
+<script src="{% static 'createterms/js/createterms.js' %}"></script>
 </body>
 </html>

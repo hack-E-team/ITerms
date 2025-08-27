@@ -1,69 +1,121 @@
+{# templates/vocabulariescreate/vocabulariescreate.html #}
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ITerms</title>
+<title>{% if mode == "edit" %}用語帳編集{% else %}用語帳作成{% endif %} - ITerms</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="{% static 'common/css/base.css' %}">
-<link rel="stylesheet" href="{% static 'vocabulariscreate/css/vocabulariescreate.css' %}">
+<link rel="stylesheet" href="{% static 'vocabulariescreate/css/vocabulariescreate.css' %}"> {# ← タイポ直し: vocabulariescreate #}
 </head>
-<body>
-
+<body class="page--has-sticky-h1">
 
 <header>
-    <img src="{% static 'common/img/ITerm-logo.png' %}" alt="サイトロゴ">
-    <a href="#" class="hamburger-menu" id="menuBtn">
-        <i class="fas fa-bars" id="menuIcon"></i>
-        <i class="fas fa-times" id="closeIcon" style="display:none;"></i>
-    </a>
+  <img src="{% static 'common/img/ITerm-logo.png' %}" alt="サイトロゴ">
+  <a href="#" class="hamburger-menu" id="menuBtn">
+    <i class="fas fa-bars" id="menuIcon"></i>
+    <i class="fas fa-times" id="closeIcon" style="display:none;"></i>
+  </a>
 </header>
 
 <div class="menu-modal" id="menuModal">
-    <div class="menu-content">
-        <a href="{% url 'accounts:profile' %}">マイページ</a>
-        <a href="{% url 'accounts:logout' %}">ログアウト</a>
-    </div>
+  <div class="menu-content">
+    <a href="{% url 'accounts:profile' %}">マイページ</a>
+    <a href="{% url 'accounts:logout' %}">ログアウト</a>
+  </div>
 </div>
 
 <main>
-    <h1>用語帳作成</h1>
+  <h1>{% if mode == "edit" %}用語帳編集{% else %}用語帳作成{% endif %}</h1>
+
+  <form method="post" action="{% url 'vocabularies:create_post' %}">
+    {% csrf_token %}
+
+    <!-- タイトル/説明/公開設定 -->
     <div class="vocab-title-area">
-        <label for="vocab-title" class="vocab-label">用語帳タイトル</label><br>
-        <input type="text" id="vocab-title" name="vocab-title" class="vocab-title-input">
+      <label class="vocab-label">用語帳タイトル</label><br>
+      <input type="text" name="title" class="vocab-title-input" value="{{ values.title }}">
+      {% if errors.title %}<div class="error">{{ errors.title }}</div>{% endif %}
     </div>
-    
+
+    <div class="vocab-desc-area">
+      <label class="vocab-label">説明</label><br>
+      <textarea name="description" rows="3">{{ values.description }}</textarea>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:8px;margin:8px 0 16px;">
+      <input type="checkbox" name="is_public" {% if values.is_public %}checked{% endif %}> 公開する
+    </label>
+
+    <!-- 画面内絞り込み（用語のタグで絞るだけ。サーバへは送らない） -->
     <div class="tag-select-area">
-        <label for="tag-select" class="vocab-label">タグで絞り込み</label><br>
-    <select id="tag-select" class="tag-select">
-        <option value="all">すべて</option>
-        {% for tag in tags %}
-            <option value="{{ tag.name }}">{{ tag.name }}</option>
+      <label class="vocab-label">タグで絞り込み</label><br>
+      <select id="term-filter" class="tag-select">
+        <option value="">すべて</option>
+        {% for tag in term_tags %}
+          <option value="{{ tag.id }}">{{ tag.name }}</option>
         {% endfor %}
-    </select>
+      </select>
     </div>
-    
-    <form id="terms-form">
-        <ul id="terms-list" class="terms-list"></ul>
-        <button type="submit" id="create-btn" class="create-btn">作成完了</button>
-    </form>
+
+    <!-- 自分の用語（複数選択可） -->
+    <ul id="terms-list" class="terms-list" style="list-style:none;padding:0;margin:12px 0;">
+      {% for t in my_terms %}
+        <li class="term-row"
+            data-tag-ids="{% for tg in t.tags.all %}{{ tg.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
+          <label style="display:flex;gap:8px;align-items:flex-start;">
+            <input type="checkbox" name="term_ids" value="{{ t.id }}"
+                   {% if t.id in values.term_ids %}checked{% endif %}>
+            <span>
+              <strong>{{ t.term }}</strong><br>
+              <small style="color:#555;">{{ t.definition|default:"(説明なし)" }}</small><br>
+              {% if t.tags.all %}
+                <small style="color:#399ACA;">
+                  {% for tg in t.tags.all %}#{{ tg.name }} {% endfor %}
+                </small>
+              {% endif %}
+            </span>
+          </label>
+        </li>
+      {% empty %}
+        <li>まず用語を作成してください。</li>
+      {% endfor %}
+    </ul>
+
+    <p style="text-align:center;margin:24px 0 80px;">
+      <button type="submit" class="create-btn">作成完了</button>
+    </p>
+  </form>
 </main>
 
 <footer>
-    <div class="footer-nav">
-        <a href="{% url 'dashboard:dashboard' %}"><i class="fas fa-home"></i></a>
-        <a href="{% url 'vocabularies:myvocabularies' %}"><i class="far fa-folder"></i></a>
-        <a href="{% url 'terms:createterms' %}"><i class="fas fa-plus"></i></a>
-        <a href="{% url 'vocabularies:vocabulariesSearch' %}"><i class="fas fa-search"></i></a>
-    </div>
+  <div class="footer-nav">
+    <a href="{% url 'dashboard:dashboard' %}"><i class="fas fa-home"></i></a>
+    <a href="{% url 'vocabularies:myvocabularies' %}"><i class="far fa-folder"></i></a>
+    <a href="{% url 'vocabularies:vocabulariescreate' %}"><i class="fas fa-plus"></i></a>
+    <a href="{% url 'vocabularies:vocabulariesSearch' %}"><i class="fas fa-search"></i></a>
+  </div>
 </footer>
 
+<script>
+  // タグ絞り込み（クライアント側のみ）
+  const filter = document.getElementById('term-filter');
+  const rows = Array.from(document.querySelectorAll('.term-row'));
+  filter?.addEventListener('change', () => {
+    const want = filter.value;
+    rows.forEach(li => {
+      if (!want) { li.style.display = ''; return; }
+      const ids = (li.dataset.tagIds || '').split(',').filter(Boolean);
+      li.style.display = ids.includes(want) ? '' : 'none';
+    });
+  });
+</script>
 <script src="{% static 'common/js/hamuburger.js' %}"></script>
-<script src="{% static 'vocabulariscreate/js/vocabulariescreate.js' %}"></script>
 </body>
 </html>

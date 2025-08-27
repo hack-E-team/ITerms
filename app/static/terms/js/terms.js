@@ -42,3 +42,10 @@ nextBtn.addEventListener('click', () => {
 
 // ページ読み込み時に最初のカードを表示
 updateCard();
+
+window.getFlashIndex = () => currentIndex;
+window.setFlashIndex = (i) => {
+  const n = Math.max(0, Math.min(i, cards.length - 1));
+  currentIndex = n;
+  updateCard();
+};

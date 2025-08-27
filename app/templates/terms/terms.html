@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ITerms</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
@@ -15,60 +16,171 @@
 </head>
 <body>
 
-
 <header>
-    <img src="{% static 'common/img/ITerm-logo.png' %}" alt="サイトロゴ">
-    <a href="#" class="hamburger-menu" id="menuBtn">
-        <i class="fas fa-bars" id="menuIcon"></i>
-        <i class="fas fa-times" id="closeIcon" style="display:none;"></i>
-    </a>
+  <img src="{% static 'common/img/ITerm-logo.png' %}" alt="サイトロゴ">
+  <a href="#" class="hamburger-menu" id="menuBtn">
+    <i class="fas fa-bars" id="menuIcon"></i>
+    <i class="fas fa-times" id="closeIcon" style="display:none;"></i>
+  </a>
 </header>
 
 <div class="menu-modal" id="menuModal">
-    <div class="menu-content">
-        <a href="{% url 'accounts:profile' %}">マイページ</a>
-        <a href="{% url 'accounts:logout' %}">ログアウト</a>
-    </div>
+  <div class="menu-content">
+    <a href="{% url 'accounts:profile' %}">マイページ</a>
+    <a href="{% url 'accounts:logout' %}">ログアウト</a>
+  </div>
 </div>
 
 <main>
-    <h1>用語学習</h1>
+  <h1>用語学習</h1>
 
-    <div class="container">
-        <button id="prev-btn" class="navigation-btn">◀</button>
+  <div class="container">
+    <button id="prev-btn" class="navigation-btn" aria-label="前へ">◀</button>
 
     <div class="card-and-info">
-        <div id="flashcard-container" class="flashcard-container">
-    <div id="flashcard" class="flashcard">
-    <div id="front" class="front"></div>
-    <div id="back" class="back"></div>
-    </div>
-    </div>
-    <div class="card-info">タップで裏返す</div>
-        <a href="list.html" id="list-link" class="list-link">用語を一覧で表示</a>
+      <div id="flashcard-container" class="flashcard-container"
+        data-vocab-id="{{ selected_vocab.id|default:'' }}"
+        data-q="{{ q|default:'' }}"
+        data-order="{{ order|default:'' }}"
+        data-initial-id="{{ initial_term_id|default:'' }}">
+        <div id="flashcard" class="flashcard" aria-live="polite">
+          <div id="front" class="front"></div>
+          <div id="back" class="back"></div>
+        </div>
+      </div>
+      <div class="card-info">タップで裏返す</div>
+
+      {% if selected_vocab %}
+        <a id="list-link" class="list-link"
+          href="{% url 'vocabularies:detail' selected_vocab.id %}{% if q or request.GET.tag %}?{% endif %}{% if q %}q={{ q|urlencode }}{% endif %}{% if request.GET.tag %}{% if q %}&{% endif %}tag={{ request.GET.tag }}{% endif %}">
+          用語を一覧で表示
+        </a>
+      {% else %}
+        <a id="list-link" class="list-link"
+          href="{% url 'terms:list' %}{% if q or request.GET.tag %}?{% endif %}{% if q %}q={{ q|urlencode }}{% endif %}{% if request.GET.tag %}{% if q %}&{% endif %}tag={{ request.GET.tag }}{% endif %}">
+          用語を一覧で表示
+        </a>
+      {% endif %}
     </div>
 
-    <button id="next-btn" class="navigation-btn">▶</button>
-    </div>
+    <button id="next-btn" class="navigation-btn" aria-label="次へ">▶</button>
+  </div>
 </main>
 
 <footer>
-    <div class="footer-nav">
-        <a href="{% url 'dashboard:dashboard' %}"><i class="fas fa-home"></i></a>
-        <a href="{% url 'vocabularies:myvocabularies' %}"><i class="far fa-folder"></i></a>
-        <a href="{% url 'terms:createterms' %}"><i class="fas fa-plus"></i></a>
-        <a href="{% url 'vocabularies:vocabulariesSearch' %}"><i class="fas fa-search"></i></a>
-    </div>
+  <div class="footer-nav">
+    <a href="{% url 'dashboard:dashboard' %}"><i class="fas fa-home"></i></a>
+    <a href="{% url 'vocabularies:myvocabularies' %}"><i class="far fa-folder"></i></a>
+    <a href="{% url 'terms:createterms' %}"><i class="fas fa-plus"></i></a>
+    <a href="{% url 'vocabularies:vocabulariesSearch' %}"><i class="fas fa-search"></i></a>
+  </div>
 </footer>
 
+<!-- ① 先に仮の cards を用意（あなたの terms.js が参照するため） -->
 <script>
-    const cards = [
-        {% for term in terms %}
-            { term: "{{ term.word|escapejs }}", desc: "{{ term.description|escapejs }}" }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    ];
+  window.cards = [{ term: "読み込み中…", desc: "" }];
 </script>
+
+<!-- ② あなたの既存JS（そのまま使う） -->
 <script src="{% static 'terms/js/terms.js' %}"></script>
+
+<script>
+(() => {
+  {% if selected_vocab %}
+    // 用語帳に紐づく学習：vocab専用APIを叩く
+    const API_URL = "{% url 'vocabularies:api_fc' selected_vocab.id %}";
+    const useVocabApi = true;
+  {% else %}
+    // 汎用（自分の用語や検索）
+    const API_URL = "{% url 'terms:api_flashcards' %}";
+    const useVocabApi = false;
+  {% endif %}
+
+  const container = document.getElementById('flashcard-container');
+  const vocab = container?.dataset.vocabId || "";
+  const q     = container?.dataset.q || "";
+  const order = (container?.dataset.order || "").toLowerCase();
+  const initialId = container?.dataset.initialId || "";
+  const limit = 500;
+
+  // 保存キー（ページ/用語帳/検索ごとに分離）
+  const pathKey  = location.pathname.replace(/\/\d+\/?$/, '/:id/');
+  const scopeKey = useVocabApi ? `vocab:${vocab}` : 'mine';
+  const storeKey = `flash_idx:${pathKey}:${scopeKey}:${q}`;
+
+  function buildQS() {
+    const p = new URLSearchParams();
+    if (!useVocabApi && vocab) p.set('vocab', vocab); // vocab APIの時は付けない
+    if (q)     p.set('q', q);
+    if (order) p.set('order', order);
+    p.set('limit', String(limit));
+    return p.toString();
+  }
+
+  function getIdxFromStorage(maxLen) {
+    const v = localStorage.getItem(storeKey);
+    const n = v ? Number(v) : NaN;
+    return Number.isFinite(n) ? Math.max(0, Math.min(n, maxLen - 1)) : null;
+  }
+
+  function saveIndex() {
+    const len = (window.cards?.length || 1);
+    let idx = (typeof window.getFlashIndex === 'function')
+      ? Number(window.getFlashIndex())
+      : Number(window.currentIndex || 0);
+    if (!Number.isFinite(idx)) idx = 0;
+    idx = Math.max(0, Math.min(idx, len - 1));
+    localStorage.setItem(storeKey, String(idx));
+  }
+
+  async function load() {
+    try {
+      const res = await fetch(`${API_URL}?${buildQS()}`, { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      const items = Array.isArray(data.items) ? data.items : [];
+      window.cards = items.length
+        ? items.map(x => ({ id: x.id, term: x.term, desc: x.desc }))
+        : [{ id: null, term: "データがありません", desc: "" }];
+
+      // 初期位置：initialId > localStorage > 0
+      let idx = 0;
+      if (initialId) {
+        const i = window.cards.findIndex(c => String(c.id) === String(initialId));
+        if (i >= 0) idx = i;
+      } else {
+        const byStore = getIdxFromStorage(window.cards.length);
+        if (byStore !== null) idx = byStore;
+      }
+
+      if (typeof window.setFlashIndex === 'function') {
+        window.setFlashIndex(idx);
+      } else {
+        window.currentIndex = idx;
+        if (typeof updateCard === 'function') updateCard();
+      }
+      saveIndex();
+
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      prevBtn?.addEventListener('click', () => setTimeout(saveIndex, 0));
+      nextBtn?.addEventListener('click', () => setTimeout(saveIndex, 0));
+      window.addEventListener('beforeunload', saveIndex);
+
+    } catch (e) {
+      console.error(e);
+      window.cards = [{ id: null, term: "取得に失敗しました", desc: "" }];
+      window.currentIndex = 0;
+      if (typeof updateCard === 'function') updateCard();
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
+  else load();
+})();
+</script>
+
 <script src="{% static 'common/js/hamuburger.js' %}"></script>
 </body>
 </html>

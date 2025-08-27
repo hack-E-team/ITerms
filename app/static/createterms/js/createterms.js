@@ -29,25 +29,75 @@ document.getElementById('add-form-btn').onclick = function() {
     attachEventListenersToForm(newForm);
 };
 
-document.getElementById('submit-btn').onclick = function() {
-    const forms = document.querySelectorAll('.term-form');
-    let hasEmptyField = false;
+// 追加：CSRFクッキー取得
+function getCookie(name){
+  const m = document.cookie.match(new RegExp('(?:^|; )'+name+'=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
 
-    forms.forEach(form => {
-        const termInput = form.querySelector('input:not([type="checkbox"])[name="term"]');
-        const descriptionInput = form.querySelector('textarea');
-        const tagCheckboxes = form.querySelectorAll('input[name="tag"]:checked');
+document.getElementById('submit-btn').onclick = async function() {
+  const btn = this;
+  const createUrl = btn.dataset.createUrl;   // ← ここ！
+  const listUrl   = btn.dataset.listUrl;     // ← ここ！
+  const forms = document.querySelectorAll('.term-form');
 
-        if (!termInput || termInput.value.trim() === '' || !descriptionInput || descriptionInput.value.trim() === '' || tagCheckboxes.length === 0) {
-            hasEmptyField = true;
-        }
+  let hasEmptyField = false;
+  const items = [];
+
+  forms.forEach(form => {
+    const term = (form.querySelector('input[name="term"]')?.value || '').trim();
+    const description = (form.querySelector('textarea[name="description"]')?.value || '').trim();
+    const tag_ids = Array.from(form.querySelectorAll('input[name="tag_ids"]:checked')).map(cb => Number(cb.value));
+    if (!term || !description || tag_ids.length === 0) hasEmptyField = true;
+    else items.push({ term, description, tag_ids });
+  });
+
+  if (hasEmptyField) { alert('全ての項目を入力してください！'); return; }
+
+  try {
+    btn.disabled = true; btn.textContent = '登録中...';
+
+    const res = await fetch(createUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken') || '',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify(items)
     });
 
-    if (hasEmptyField) {
-        alert('全ての項目を入力してください！');
+    const data = await res.json().catch(() => ({}));
+    console.debug('create_post response', res.status, data);
+
+    if (res.ok) {
+      const ok = data.created?.length || 0;
+      const ng = data.errors?.length || 0;
+      if (ng === 0) {
+        alert(`${ok}件 登録しました。`);
+        location.href = listUrl;
+      } else {
+        alert(`一部失敗: 成功 ${ok} / 失敗 ${ng}`);
+        console.warn('errors:', data.errors);
+      }
     } else {
-        alert('登録が完了しました！');
+      // ステータス別ヒント
+      if (res.status === 415) {
+        alert('登録に失敗: Content-Type が JSON になっていません。');
+      } else if (res.status === 403) {
+        alert('登録に失敗: CSRF が通っていません。');
+      } else {
+        alert(`登録に失敗しました (HTTP ${res.status})`);
+      }
+      console.error('response:', res, data);
     }
+  } catch (e) {
+    alert('通信エラーが発生しました。');
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = '登録完了';
+  }
 };
 
 /**

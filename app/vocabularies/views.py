@@ -178,9 +178,12 @@ def vocabulary_create_post(request):
     tag_ids = [int(x) for x in raw_tag_ids if x.isdigit()]
 
     if errors:
-        my_terms = Term.objects.filter(user=request.user).order_by("term")
-        all_tags = Tag.objects.order_by("name") if _has_vocab_tags() else []
+        my_terms = Term.objects.filter(user=request.user).order_by("term").prefetch_related("tags")
+        term_tags = Tag.objects.order_by("name") if Tag else []
         return render(request, "vocabulariescreate/vocabulariescreate.html", {
+            "mode": "create",
+            "action_url": reverse("vocabularies:create_post"),
+            "submit_label": "作成完了",
             "values": {
                 "title": title,
                 "description": description,
@@ -190,7 +193,7 @@ def vocabulary_create_post(request):
             },
             "errors": errors,
             "my_terms": my_terms,
-            "all_tags": all_tags,
+            "term_tags": term_tags,
         }, status=400)
 
     vocab = Vocabulary.objects.create(

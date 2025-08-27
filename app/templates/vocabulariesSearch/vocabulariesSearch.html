@@ -63,7 +63,7 @@
           <div class="card-info">
             <div class="card-title">{{ vocab.title }}</div>
             <div class="card-count">用語数: {{ vocab.term_count }}</div>
-            <div class="card-author">作成者: {{ vocab.user.username }}</div>
+            <div class="card-author">作成者: {{ vocab.user.nickname|default:"ユーザー" }}</div>
           </div>
         </a>
 

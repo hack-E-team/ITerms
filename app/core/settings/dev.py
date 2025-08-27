@@ -25,3 +25,7 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT", "3306"),
     }
 }
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = "Lax"

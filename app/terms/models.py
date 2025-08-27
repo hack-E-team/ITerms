@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.conf import settings
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='タグ名')
@@ -10,6 +10,12 @@ class Tag(models.Model):
 
 
 class Term(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='terms',
+        verbose_name='作成者',
+    )
     term = models.CharField(max_length=255, verbose_name='用語')
     definition = models.TextField(verbose_name='定義')
     tags = models.ManyToManyField(Tag, related_name='terms', blank=True, verbose_name='タグ')

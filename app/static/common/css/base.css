@@ -1,0 +1,140 @@
+/* ====================
+基本設定
+==================== */
+body {
+    font-family: "M PLUS 1p", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+    padding: 0;
+    padding-top: 101px; /* ヘッダーとタイトルの高さ分 */
+    padding-bottom: 74px; /* フッターの高さ分 */
+    background-color: #E6ECFF;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+/* ====================
+ヘッダー (モバイル)
+==================== */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+header img {
+    height: 55px;
+}
+
+.hamburger-menu {
+    font-size: 24px;
+    padding: 8px;
+    padding-right: 40px;
+    color: #333;
+}
+
+/* ====================
+フッター (モバイル)
+==================== */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background-color: #399ACA;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.footer-nav {
+    display: flex;
+    gap: 24px;
+}
+
+.footer-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #cccccc;
+    transition: color 0.3s ease;
+}
+
+
+.footer-nav i {
+    margin-bottom: 4px;
+    font-size: 32px;
+    padding: 0px 32px 0px 0px;
+}
+
+.fas.fa-home {
+    color: #fff;
+}
+
+/* ====================
+ハンバーガーメニュー(モバイル)
+==================== */
+.menu-modal {
+    display: none;
+    position: fixed;
+    top: 72px; /* ヘッダーの高さ分だけ下げる */
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 72px - 74px); /* ヘッダー・フッター分除外 */
+    background: rgba(0,0,0,0.3);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-content {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 220px;
+    align-items: center;
+}
+
+.menu-content a {
+    display: block;
+    padding: 16px 32px;
+    background: #399ACA;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.menu-content a:hover {
+    background: #007bff;
+}
+
+.hamburger-menu i {
+    font-size: 24px;
+    vertical-align: middle;
+    cursor: pointer;
+}

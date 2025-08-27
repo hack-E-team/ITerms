@@ -1,64 +1,166 @@
+/* 全体の背景色 */
 body {
-    background-color: #EDF1FF;
-    font-family: "Helvetica Neue", sans-serif;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    font-family: "M PLUS 1p", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    background-color: #E6ECFF; 
+    justify-content: center; /* 水平方向の中央に配置 */
+    align-items: center;     /* 垂直方向の中央に配置 */
+    height: 100vh;           /* ビューポートの高さいっぱいに広げる */
     margin: 0;
 }
 
-.login-container {
-    background: white;
-    padding: 40px 30px;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
+/* トップヘッダー部分 */
+.div-login-header {
+    background-color: #ffffff; /* 白い背景色 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 下方向に影をつける */
+    
+    /* ヘッダーの横幅を調整 */
+    max-width: 960px; /* 例えば、最大幅を960pxに設定 */
+    margin: 0 auto; /* 中央寄せ */
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px;
+     margin-bottom: 0; /* ここを変更 */
 }
 
-.login-container h2 {
-    font-size: 24px;
+.header-logo {
+    width: 55px;
+    height: auto;
+}
+
+.register-button {
+    background-color: #ff8282;
+    color: #ffffff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* ヘッダー以外のコンテンツをコンパクトにするためのスタイル */
+.main-content {
+    max-width: 400px;
+    margin: 0 auto; /* ここを変更 */
+    padding: 20px;
+}
+
+/* メイン画像とフォームセクション */
+.title-section {
+    text-align: center;
     margin-bottom: 20px;
 }
 
-.login-container input {
+.main-image {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 16px;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    font-size: 16px;
+    height: auto;
+    border-radius: 10px;
 }
 
-.login-container button {
-    width: 100%;
-    padding: 12px;
-    background-color: #FF6D6D;
-    color: white;
-    border: none;
+/* フォームタイトル */
+.form-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* フォーム入力欄 */
+.form-group {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group input {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* ログインボタンの段落コンテナ */
+.login-button-paragraph {
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* ログインボタン */
+.login-button {
+    display: inline-block;
+    width: 70%;
+    background-color: #ffffff;
+    color: #000;
+    font-weight: bold;
+    border: 1px solid #ddd;
     border-radius: 25px;
+    padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(255, 109, 109, 0.3);
-    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 20px;
 }
 
-.login-container button:hover {
-    background-color: #ff4b4b;
+/* パスワード再設定ボタン（リンク） */
+
+/* 新しい段落コンテナのスタイル */
+.password-reset-paragraph {
+    text-align: center; /* 中央寄せにする */
+    margin-top: 15px; /* 上部に余白を追加 */
+    width: 100%;
 }
 
-.forgot-password {
-    margin-top: 15px;
-}
-
-.forgot-password a {
-    display: inline-block;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-size: 14px;
+/* パスワード再設定ボタン（リンク） */
+.password-reset {
+    /* 以前のボタンのスタイルはそのまま */
+    display: inline-block; /* インラインブロック要素に変更 */
+    width: 60%;
     text-decoration: none;
-    color: #333;
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: #000;
+}
+
+/* sign_upボタンを囲むコンテナのスタイル */
+.div-button-container {
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* 登録ボタンのスタイル  */
+.signup-button {
+    display: inline-block;
+    width: 60%;
+    background-color: #ffffff;
+    color: #000;
+    font-weight: bold;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+/* スマートフォン対応のためのメディアクエリ */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px;
+        margin: 0 auto;
+    }
+    .form-group input,
+    .login-button,
+    .password-reset {
+        padding: 10px;
+        font-size: 14px;
+    }
 }

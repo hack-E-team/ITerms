@@ -1,7 +1,14 @@
 import os
 from pathlib import Path
+import pymysql
+pymysql.install_as_MySQLdb()
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-5kz@2c3h5k!g%9a7^2wqf0r4m1x8u6p3b0n7s4d1l0v2y5t8r"  # 例：適当な長いランダム文字列
+)
 
 INSTALLED_APPS = [
     # Djangoデフォルトアプリや共通アプリ
@@ -11,7 +18,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 他アプリ...
+    'accounts',
+    'vocabularies',
+    'terms',
+    'quizzes',
+    'dashboard',
+    'sharing',
 ]
 
 MIDDLEWARE = [
@@ -24,7 +36,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
     {
@@ -42,7 +54,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = 'core.wsgi.application'
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -60,6 +72,28 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "iterms",            
+        "USER": "root",              
+        "PASSWORD": "your_password", 
+        "HOST": "127.0.0.1",         
+        "PORT": "3306",              
+        "OPTIONS": {
+            "charset": "utf8mb4",
+            # "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",  # 任意
+        },
+    }
+}
+
+
+DB = DATABASES["default"]
+DB["HOST"] = (DB.get("HOST") or "127.0.0.1")
+DB["PORT"] = str(DB.get("PORT") or "3306")
+
+
 LANGUAGE_CODE = 'ja'
 
 TIME_ZONE = 'Asia/Tokyo'
@@ -71,3 +105,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEBUG = True
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+AUTH_USER_MODEL = 'accounts.User'

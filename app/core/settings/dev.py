@@ -1,7 +1,5 @@
+import os
 from .base import *
-from dotenv import load_dotenv
-
-load_dotenv(dotenv_path=BASE_DIR / '.env.dev')
 
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
@@ -19,3 +17,6 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT", "3306"),
     }
 }
+
+
+#asd

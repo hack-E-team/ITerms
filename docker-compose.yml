@@ -1,5 +1,5 @@
 services:
-  web:
+  django:
     build:
       context: .
       dockerfile: infra/docker/django/Dockerfile.prod
@@ -19,7 +19,7 @@ services:
       - ./staticfiles:/iterms/staticfiles
       - ./infra/docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - web
+      - django
     restart: always
     profiles: ["production"]
 

@@ -34,7 +34,7 @@
 <main>
   <h1>{% if mode == "edit" %}用語帳編集{% else %}用語帳作成{% endif %}</h1>
 
-  <form method="post" action="{% url 'vocabularies:create_post' %}">
+  <form method="post" action="{{ action_url }}">
     {% csrf_token %}
 
     <!-- タイトル/説明/公開設定 -->
@@ -89,7 +89,7 @@
     </ul>
 
     <p style="text-align:center;margin:24px 0 80px;">
-      <button type="submit" class="create-btn">作成完了</button>
+      <button type="submit" class="create-btn">{{ submit_label }}</button>
     </p>
   </form>
 </main>

@@ -7,6 +7,10 @@ ENV PYTHONUNBUFFERED=1
 RUN apt-get update && apt-get install -y \
     build-essential \
     libmariadb-dev-compat \
+    libssl-dev \
+    libffi-dev \
+    cargo \
+    pkg-config \
     curl \
     vim \
     && rm -rf /var/lib/apt/lists/*
@@ -15,7 +19,8 @@ WORKDIR /iterms
 
 # 依存関係インストール
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
 
 # wait-for-it.sh をダウンロードして実行可能に
 RUN curl -o /wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh \

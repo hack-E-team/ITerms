@@ -47,11 +47,12 @@
                 <div class="custom-select-container">
                     <div class="selected-tags">タグを選択...</div>
                     <div class="dropdown-menu">
-                        <label><input type="checkbox" name="tag" value="IT"> <span>IT</span></label>
-                        <label><input type="checkbox" name="tag" value="基本情報"> <span>基本情報</span></label>
-                        <label><input type="checkbox" name="tag" value="AWS"> <span>AWS</span></label>
-                        <label><input type="checkbox" name="tag" value="IT"> <span>IT</span></label>
-                        <label><input type="checkbox" name="tag" value="IT"> <span>IT</span></label>
+                        {% for tag in tags %}
+                            <label>
+                                <input type="checkbox" name="tag" value="{{ tag.id }}">
+                                <span>{{ tag.name }}</span>
+                            </label>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

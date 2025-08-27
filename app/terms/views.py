@@ -1,3 +1,4 @@
+import json
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
 from django.shortcuts import render, redirect, get_object_or_404
@@ -5,6 +6,7 @@ from django.db import transaction
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse, Http404
+from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 
@@ -55,12 +57,10 @@ def terms_list_view(request):
         qs = qs.filter(tags__id=int(tag_id)).distinct()
 
     qs = qs.order_by("-updated_at", "-created_at")
-
-    paginator = Paginator(qs, 20)
-    page_obj = paginator.get_page(request.GET.get("page"))
+    terms = list(qs)
 
     return render(request, "termslist/termslist.html", {
-        "page_obj": page_obj,
+        "terms": terms,
         "q": q,
         "selected_vocab": selected_vocab,
         "all_tags": Tag.objects.order_by("name"),
@@ -74,43 +74,36 @@ def terms_list_view(request):
 @require_GET
 @login_required
 def term_detail_page(request, pk: int):
-    """
-    /terms/<pk>/?vocab=&q=&order=
-    - 自分のTermなら無条件に表示OK
-    - 他人のTermは、?vocab= 指定で「そのデッキに含まれて」いて、
-      かつデッキが公開 or 自分のデッキ、のときのみ表示OK
-    - ?vocab 無しの他人Termは、公開用語集に含まれている場合のみOK
-    """
     term = get_object_or_404(Term, pk=pk)
 
     vocab_id = (request.GET.get("vocab") or "").strip()
     via_vocab = None
-    vt = None
 
-    # 自分の用語はOK
-    if term.user_id == request.user.id:
-        pass
-    else:
-        # 他人Termのアクセス制御
-        in_public_vocab = VocabularyTerm.objects.filter(
-            term=term, vocabulary__is_public=True
+    # ★ ここを先に処理：?vocab= が来ていたら、所有者に関係なく採用
+    if vocab_id.isdigit():
+        via_vocab = get_object_or_404(Vocabulary, id=int(vocab_id))
+        # アクセス権（公開 or 自分の用語帳）
+        if not (via_vocab.is_public or via_vocab.user_id == request.user.id):
+            raise Http404()
+        # その用語帳にこの用語が含まれているか
+        in_this_vocab = VocabularyTerm.objects.filter(
+            vocabulary=via_vocab, term=term
         ).exists()
+        if not in_this_vocab:
+            raise Http404()
 
-        if vocab_id.isdigit():
-            via_vocab = get_object_or_404(Vocabulary, id=int(vocab_id))
-            # そのデッキに含まれているか？
-            vt = VocabularyTerm.objects.filter(vocabulary=via_vocab, term=term).first()
-            # デッキが公開 or 自分のデッキ、かつ 含まれている、が必須
-            if not (vt and (via_vocab.is_public or via_vocab.user_id == request.user.id)):
-                raise Http404()
-        else:
-            # ?vocab 無し → 公開用語集に含まれていない他人Termは表示不可
+    else:
+        # ?vocab が無いときだけ、他人Termのアクセス制御を行う
+        if term.user_id != request.user.id:
+            in_public_vocab = VocabularyTerm.objects.filter(
+                term=term, vocabulary__is_public=True
+            ).exists()
             if not in_public_vocab:
                 raise Http404()
 
     return render(request, "terms/terms.html", {
         "initial_term_id": term.id,
-        "selected_vocab": via_vocab,  # None の場合もあり
+        "selected_vocab": via_vocab,  # ← ?vocab= があれば必ず入る
         "q": (request.GET.get("q") or "").strip(),
         "order": (request.GET.get("order") or "").strip(),
     })
@@ -130,13 +123,100 @@ def term_create_view(request):
 
 
 @require_POST
-@transaction.atomic
 @login_required
 def term_create_post(request):
-    # テンプレのnameに合わせる: term / description(=definitionに保存)
+    """
+    JSON配列: [{ "term": "...", "description": "...", "tag_ids": [1,2,3] }, ...]
+    を受け取り、1回のリクエストでまとめて作成します。
+    各要素は個別に検証・保存（片方失敗しても他は続行）。
+    """
+    # 受け口を配列専用にする（不要なら外してOK）
+    if "application/json" not in (request.content_type or "").lower():
+        return JsonResponse({"ok": False, "error": "Content-Type must be application/json"}, status=415)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "[]")
+    except json.JSONDecodeError:
+        return JsonResponse({"ok": False, "error": "Invalid JSON"}, status=400)
+
+    if not isinstance(payload, list):
+        return JsonResponse({"ok": False, "error": "Array expected"}, status=400)
+
+    MAX_ITEMS = 1000
+    if len(payload) > MAX_ITEMS:
+        return JsonResponse({"ok": False, "error": f"Too many items (>{MAX_ITEMS})"}, status=413)
+
+    created, errors = [], []
+
+    for i, item in enumerate(payload):
+        term_value = (item.get("term") or "").strip()
+        definition_value = (item.get("description") or item.get("definition") or "").strip()
+
+        tag_ids = []
+        for x in (item.get("tag_ids") or []):
+            try:
+                tag_ids.append(int(x))
+            except (TypeError, ValueError):
+                continue
+
+        if not term_value or not definition_value:
+            errors.append({"index": i, "error": "term/description は必須です"})
+            continue
+
+        with transaction.atomic():
+            obj = Term.objects.create(
+                user=request.user,
+                term=term_value,
+                definition=definition_value,
+            )
+            if tag_ids:
+                tags = list(Tag.objects.filter(id__in=set(tag_ids)))
+                if tags:
+                    obj.tags.add(*tags)
+
+            created.append({"id": obj.id, "term": obj.term})
+
+    return JsonResponse(
+        {"ok": len(errors) == 0, "created": created, "errors": errors},
+        status=200 if not errors else 207,
+        json_dumps_params={"ensure_ascii": False},
+    )
+
+
+# =========================
+# 用語編集（GET/POST)
+# =========================
+@require_GET
+@login_required
+def term_edit_view(request, pk: int):
+    """
+    自分の用語のみ編集可能。単一レコード編集ページ（GET）
+    """
+    t = get_object_or_404(Term.objects.prefetch_related("tags"), pk=pk, user=request.user)
+    tag_ids = list(t.tags.values_list("id", flat=True))
+
+    return render(request, "editterms/editterms.html", {
+        "values": {"term": t.term, "definition": t.definition, "tag_ids": tag_ids},
+        "errors": {},
+        "all_tags": Tag.objects.order_by("name"),
+        "action_url": reverse("terms:edit_post", args=[t.id]),
+        "submit_label": "保存する",
+        "term_obj": t,
+    })
+
+
+@require_POST
+@login_required
+def term_edit_post(request, pk: int):
+    """
+    自分の用語のみ編集可能。単一レコード編集の保存（POST）
+    """
+    t = get_object_or_404(Term.objects.select_related("user"), pk=pk, user=request.user)
+
     term_value = (request.POST.get("term") or "").strip()
-    definition_value = (request.POST.get("description") or "").strip()
-    raw_tag_ids = request.POST.getlist("tag_ids")  # ← フォームは name="tag_ids"[] で送ってください
+    definition_value = (request.POST.get("definition") or "").strip()
+    raw_tag_ids = request.POST.getlist("tag_ids")
+    tag_ids = [int(x) for x in raw_tag_ids if x.isdigit()]
 
     errors = {}
     if not term_value:
@@ -144,28 +224,30 @@ def term_create_post(request):
     if not definition_value:
         errors["definition"] = "必須です。"
 
-    tag_ids = [int(x) for x in raw_tag_ids if x.isdigit()]
-
     if errors:
-        return render(request, "createterms/createterms.html", {
+        return render(request, "editterms/editterms.html", {
             "values": {"term": term_value, "definition": definition_value, "tag_ids": tag_ids},
             "errors": errors,
             "all_tags": Tag.objects.order_by("name"),
+            "action_url": reverse("terms:edit_post", args=[t.id]),
+            "submit_label": "保存する",
+            "term_obj": t,
         }, status=400)
 
-    obj = Term.objects.create(
-        user=request.user,                 # ★ 追加
-        term=term_value,
-        definition=definition_value,
-    )
+    # 更新
+    t.term = term_value
+    t.definition = definition_value
+    t.save(update_fields=["term", "definition", "updated_at"])
+
+    # タグ更新
     if tag_ids:
-        selected = list(Tag.objects.filter(id__in=set(tag_ids)))
-        if selected:
-            obj.tags.add(*selected)
+        tags = list(Tag.objects.filter(id__in=set(tag_ids)))
+        t.tags.set(tags)
+    else:
+        t.tags.clear()
 
-    messages.success(request, f'用語「{obj.term}」を作成しました。')
-    return redirect("terms:list")
-
+    messages.success(request, "用語を更新しました。")
+    return redirect("terms:detail", pk=t.pk)
 
 # =========================
 # JSON: 学習/カード用データ

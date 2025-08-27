@@ -32,7 +32,8 @@
 </div>
 
 <main>
-    <h1>用語帳作成</h1>
+    <h1>{% if mode == "edit" %}用語帳編集{% else %}用語帳作成{% endif %}</h1>
+    
     <div class="vocab-title-area">
         <label for="vocab-title" class="vocab-label">用語帳タイトル</label><br>
         <input type="text" id="vocab-title" name="vocab-title" class="vocab-title-input">
@@ -48,7 +49,7 @@
     </select>
     </div>
     
-    <form id="terms-form">
+    <form id="terms-form" >
         <ul id="terms-list" class="terms-list"></ul>
         <button type="submit" id="create-btn" class="create-btn">作成完了</button>
     </form>

@@ -34,34 +34,37 @@
 
 <main>
     <h1>用語登録</h1>
-    <div id="form-list">
-        <form class="term-form">
-            <button type="button" class="remove-form-btn" style="align-self: flex-end;">×</button>
-            <div class="form-group">
-                <input type="text" id="term" name="term" required placeholder="用語">
-            </div>
-            <div class="form-group">
-                <textarea id="description" name="description" rows="3" required placeholder="説明文"></textarea>
-            </div>
-            <div class="form-group">
-                <div class="custom-select-container">
-                    <div class="selected-tags">タグを選択...</div>
-                    <div class="dropdown-menu">
-                        {% for tag in tags %}
-                            <label>
-                                <input type="checkbox" name="tag" value="{{ tag.id }}">
-                                <span>{{ tag.name }}</span>
-                            </label>
-                        {% endfor %}
+    <form id="multi-terms-form" method="post" action="{% url 'terms:create_post' %}">
+        {% csrf_token %}
+        <div id="form-list">
+            <div class="term-form">
+                <button type="button" class="remove-form-btn" style="align-self: flex-end;">×</button>
+                <div class="form-group">
+                    <input type="text" id="term" name="term" required placeholder="用語">
+                </div>
+                <div class="form-group">
+                    <textarea id="description" name="description" rows="3" required placeholder="説明文"></textarea>
+                </div>
+                <div class="form-group">
+                    <div class="custom-select-container">
+                        <div class="selected-tags">タグを選択...</div>
+                        <div class="dropdown-menu">
+                            {% for tag in all_tags %}
+                                <label>
+                                    <input type="checkbox" name="tag_ids" value="{{ tag.id }}">
+                                    <span>{{ tag.name }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
     <div class="form-buttons">
         <button type="button" id="add-form-btn" class="add-btn">用語追加</button>
         <button type="button" id="submit-btn" class="register-btn">登録完了</button>
-    </div>    
+    </div>
+    </form>
 </main>
 
 <footer>

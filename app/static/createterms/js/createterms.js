@@ -29,24 +29,59 @@ document.getElementById('add-form-btn').onclick = function() {
     attachEventListenersToForm(newForm);
 };
 
-document.getElementById('submit-btn').onclick = function() {
+document.getElementById('submit-btn').onclick = async function() {
     const forms = document.querySelectorAll('.term-form');
     let hasEmptyField = false;
+    let payload = [];
 
     forms.forEach(form => {
         const termInput = form.querySelector('input:not([type="checkbox"])[name="term"]');
         const descriptionInput = form.querySelector('textarea');
-        const tagCheckboxes = form.querySelectorAll('input[name="tag"]:checked');
+        const tagCheckboxes = form.querySelectorAll('input[name="tag_ids"]:checked');
 
-        if (!termInput || termInput.value.trim() === '' || !descriptionInput || descriptionInput.value.trim() === '' || tagCheckboxes.length === 0) {
+        if (!termInput || termInput.value.trim() === '' || 
+            !descriptionInput || descriptionInput.value.trim() === '' || 
+            tagCheckboxes.length === 0) {
             hasEmptyField = true;
+        } else {
+            payload.push({
+                term: termInput.value.trim(),
+                description: descriptionInput.value.trim(),
+                tag_ids: Array.from(tagCheckboxes).map(cb => cb.value)
+            });
         }
     });
 
     if (hasEmptyField) {
         alert('全ての項目を入力してください！');
-    } else {
+        return;
+    }
+
+const submitBtn = document.getElementById('submit-btn');
+const form = document.getElementById('multi-terms-form'); // 新たにformを取得
+
+submitBtn.onclick = async function() {
+    // CSRFトークン取得
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // fetchでJSON送信
+    const response = await fetch("{% url 'terms:create_post' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify(payload)
+    });
+}
+
+    const result = await response.json();
+    if (result.ok) {
         alert('登録が完了しました！');
+        window.location.href = "{% url 'terms:terms_list' %}";
+    } else {
+        alert('一部登録に失敗しました。');
+        // 必要ならエラー内容を表示
     }
 };
 
@@ -70,7 +105,7 @@ function attachEventListenersToForm(form) {
         checkbox.addEventListener('change', () => {
             const selected = Array.from(checkboxes)
                 .filter(cb => cb.checked)
-                .map(cb => cb.value);
+                .map(cb => cb.nextElementSibling.textContent.trim());
             selectedTagsDisplay.textContent = selected.length > 0 ? selected.join(', ') : 'タグを選択...';
         });
     });

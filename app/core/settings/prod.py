@@ -25,15 +25,6 @@ FIXTURE_DIRS = [
     BASE_DIR / 'app' / 'fixture',
 ]
 
-# セキュリティ強化設定
-
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-USE_X_FORWARDED_HOST = True
-
-
 # RDS/MySQLなど本番DB設定
 
 DATABASES = {
@@ -81,3 +72,25 @@ STORAGES = {
 
 # STATIC_URL を CloudFront へ向ける
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
+
+
+# セキュリティ強化設定
+def _as_https_origin(host: str | None) -> list[str]:
+    if not host:
+        return []
+    host = host.strip()
+    return [host] if host.startswith(("http://", "https://")) else [f"https://{host}"]
+
+origins: list[str] = []
+origins += _as_https_origin(AWS_CLOUDFRONT_DOMAIN)
+origins += [o for h in ALLOWED_HOSTS for o in _as_https_origin(h)]
+origins += ["https://i-terms.com"]
+# 順序維持で重複削除
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(origins))
+
+CSRF_COOKIE_SAMESITE = "Lax"
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True

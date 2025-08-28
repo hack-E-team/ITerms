@@ -174,21 +174,3 @@ h1 {
 .remove-form-btn:hover {
     background: #cc0000;
 }
-
-.list-link-btn {
-    display: inline-block;
-    padding: 10px 32px;
-    background: #6c757d;      /* グレー基調 */
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    text-decoration: none;    /* リンクの下線消す */
-    cursor: pointer;
-    transition: background 0.2s;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-}
-
-.list-link-btn:hover {
-    background: #5a6268;      /* 少し濃いグレー */
-}

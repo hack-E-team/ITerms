@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 from django.utils import timezone
-
 from .models import Vocabulary, VocabularyTerm, UserFavoriteVocabulary
 from terms.models import Term
 try:
@@ -62,7 +61,8 @@ def vocabulary_list_view(request):
 
     if q:
         base = (Q(title__icontains=q) | Q(description__icontains=q) |
-                Q(terms__term__term__icontains=q) | Q(terms__term__definition__icontains=q))
+                Q(terms__term__term__icontains=q) | Q(terms__term__definition__icontains=q) |
+                Q(terms__term__tags__name__icontains=q)) 
         if _has_vocab_tags():
             base |= Q(tags__name__icontains=q)
         qs = qs.filter(base).distinct()
@@ -178,9 +178,12 @@ def vocabulary_create_post(request):
     tag_ids = [int(x) for x in raw_tag_ids if x.isdigit()]
 
     if errors:
-        my_terms = Term.objects.filter(user=request.user).order_by("term")
-        all_tags = Tag.objects.order_by("name") if _has_vocab_tags() else []
+        my_terms = Term.objects.filter(user=request.user).order_by("term").prefetch_related("tags")
+        term_tags = Tag.objects.order_by("name") if Tag else []
         return render(request, "vocabulariescreate/vocabulariescreate.html", {
+            "mode": "create",
+            "action_url": reverse("vocabularies:create_post"),
+            "submit_label": "作成完了",
             "values": {
                 "title": title,
                 "description": description,
@@ -190,7 +193,7 @@ def vocabulary_create_post(request):
             },
             "errors": errors,
             "my_terms": my_terms,
-            "all_tags": all_tags,
+            "term_tags": term_tags,
         }, status=400)
 
     vocab = Vocabulary.objects.create(
@@ -380,7 +383,8 @@ def discover_vocabularies_view(request):
             Q(title__icontains=q) |
             Q(description__icontains=q) |
             Q(terms__term__term__icontains=q) |
-            Q(terms__term__definition__icontains=q)
+            Q(terms__term__definition__icontains=q) |
+            Q(terms__term__tags__name__icontains=q)
         )
         if _has_vocab_tags():
             base |= Q(tags__name__icontains=q)

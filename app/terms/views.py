@@ -9,10 +9,8 @@ from django.http import JsonResponse, Http404
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
-
 from .models import Term, Tag
 from vocabularies.models import Vocabulary, VocabularyTerm
-
 
 # =========================
 # 一覧（termslist.html）

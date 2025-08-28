@@ -9,18 +9,8 @@ from django.http import JsonResponse, Http404
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
-
 from .models import Term, Tag
 from vocabularies.models import Vocabulary, VocabularyTerm
-
-import logging
-log = logging.getLogger(__name__)
-
-def vocabulary_create_post(request):
-    log.info("DEV create_vocab user_id=%s auth=%s POST=%s",
-             getattr(request.user, "id", None),
-             request.user.is_authenticated,
-             list(request.POST.keys()))
 
 # =========================
 # 一覧（termslist.html）

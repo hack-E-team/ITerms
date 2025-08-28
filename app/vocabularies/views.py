@@ -9,16 +9,6 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 from django.utils import timezone
-
-import logging
-log = logging.getLogger(__name__)
-
-def vocabulary_create_post(request):
-    log.info("DEV create_vocab user_id=%s auth=%s POST=%s",
-             getattr(request.user, "id", None),
-             request.user.is_authenticated,
-             list(request.POST.keys()))
-
 from .models import Vocabulary, VocabularyTerm, UserFavoriteVocabulary
 from terms.models import Term
 try:
@@ -71,7 +61,8 @@ def vocabulary_list_view(request):
 
     if q:
         base = (Q(title__icontains=q) | Q(description__icontains=q) |
-                Q(terms__term__term__icontains=q) | Q(terms__term__definition__icontains=q))
+                Q(terms__term__term__icontains=q) | Q(terms__term__definition__icontains=q) |
+                Q(terms__term__tags__name__icontains=q)) 
         if _has_vocab_tags():
             base |= Q(tags__name__icontains=q)
         qs = qs.filter(base).distinct()
@@ -392,7 +383,8 @@ def discover_vocabularies_view(request):
             Q(title__icontains=q) |
             Q(description__icontains=q) |
             Q(terms__term__term__icontains=q) |
-            Q(terms__term__definition__icontains=q)
+            Q(terms__term__definition__icontains=q) |
+            Q(terms__term__tags__name__icontains=q)
         )
         if _has_vocab_tags():
             base |= Q(tags__name__icontains=q)

@@ -120,7 +120,7 @@ function attachEventListenersToForm(form) {
         checkbox.addEventListener('change', () => {
             const selected = Array.from(checkboxes)
                 .filter(cb => cb.checked)
-                .map(cb => cb.value);
+                .map(cb => cb.nextElementSibling.textContent.trim());
             selectedTagsDisplay.textContent = selected.length > 0 ? selected.join(', ') : 'タグを選択...';
         });
     });

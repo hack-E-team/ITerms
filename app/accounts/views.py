@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
+from django.contrib.messages import get_messages
 
 UserModel = get_user_model()
 
@@ -32,6 +33,10 @@ def login_view(request):
 
 @login_required
 def logout_view(request):
+    storage = get_messages(request)
+    for _ in storage:
+        pass
+    storage.used = True
     logout(request)
     return redirect("accounts:login")
 

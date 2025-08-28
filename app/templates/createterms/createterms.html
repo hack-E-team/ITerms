@@ -34,6 +34,14 @@
 
 <main>
     <h1>用語登録</h1>
+
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     <div id="form-list">
         <form method="post" class="term-form">
         {% csrf_token %}
@@ -69,7 +77,7 @@
             data-list-url="{% url 'terms:list' %}">
             登録完了
         </button>
-        <a class="list-link-btn" href="{% url 'terms:list' %}">用語一覧へ</a>
+        <a class="list-link-btn" href="{% url 'terms:list' %}">用語一覧</a>
     </div>    
 </main>
 

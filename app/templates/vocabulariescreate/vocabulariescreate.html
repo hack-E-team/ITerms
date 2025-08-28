@@ -34,6 +34,14 @@
 <main>
   <h1>{% if mode == "edit" %}用語帳編集{% else %}用語帳作成{% endif %}</h1>
 
+  {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
   <form method="post" action="{{ action_url }}">
     {% csrf_token %}
 

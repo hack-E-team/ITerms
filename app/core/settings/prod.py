@@ -21,9 +21,6 @@ STATICFILES_DIRS = [
     BASE_DIR / "app" / "static"
 ]
 
-FIXTURE_DIRS = [
-    BASE_DIR / 'app' / 'fixture',
-]
 
 # RDS/MySQLなど本番DB設定
 

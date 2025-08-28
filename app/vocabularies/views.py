@@ -10,6 +10,15 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 from django.utils import timezone
 
+import logging
+log = logging.getLogger(__name__)
+
+def vocabulary_create_post(request):
+    log.info("DEV create_vocab user_id=%s auth=%s POST=%s",
+             getattr(request.user, "id", None),
+             request.user.is_authenticated,
+             list(request.POST.keys()))
+
 from .models import Vocabulary, VocabularyTerm, UserFavoriteVocabulary
 from terms.models import Term
 try:

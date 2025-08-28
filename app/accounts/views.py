@@ -50,6 +50,8 @@ def signup_view(request):
         errs = []
         if not email:
             errs.append("メールアドレスを入力してください。")
+        if not nickname:
+            errs.append("ニックネームを入力してください。")   # ★ 追加
         if not password:
             errs.append("パスワードを入力してください。")
         if password != password_confirm:
@@ -57,7 +59,6 @@ def signup_view(request):
         if UserModel.objects.filter(**{f"{UserModel.USERNAME_FIELD}__iexact": email}).exists():
             errs.append("このメールアドレスは既に登録されています。")
 
-        # パスワードバリデーション
         try:
             validate_password(password)
         except ValidationError as e:
@@ -66,14 +67,15 @@ def signup_view(request):
         if errs:
             for m in errs:
                 messages.error(request, m)
+            # 入力値を戻すなら context に詰めてもOK
             return render(request, "sign_up/sign_up.html")
 
-        # 作成（Manager の create_user が nickname を受けない場合に備えて安全に）
+        # ★ ここで username に email を入れ、nickname も必ず保存
         user = UserModel(**{UserModel.USERNAME_FIELD: email})
         if hasattr(user, "email") and not getattr(user, "email"):
             user.email = email
         if hasattr(user, "nickname"):
-            user.nickname = nickname
+            user.nickname = nickname  # ★ 必ず保存
         user.set_password(password)
         user.save()
 

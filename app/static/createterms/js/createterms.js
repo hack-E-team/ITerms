@@ -64,7 +64,7 @@ document.getElementById('submit-btn').onclick = async function() {
         'X-CSRFToken': getCookie('csrftoken') || '',
         'X-Requested-With': 'XMLHttpRequest'
       },
-      credentials: 'same-origin',
+      credentials: 'include',
       body: JSON.stringify(items)
     });
 

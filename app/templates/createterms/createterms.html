@@ -35,13 +35,6 @@
 <main>
     <h1>用語登録</h1>
 
-      {% if messages %}
-        <ul class="messages">
-          {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
     <div id="form-list">
         <form method="post" class="term-form">
         {% csrf_token %}

@@ -34,13 +34,6 @@
 
 <main>
   <h1>用語帳を探す</h1>
-    {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-          <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
 
   <div class="search-area">
     <form method="get" action="" class="search-form" style="display:flex;gap:8px;align-items:center;width:100%;">

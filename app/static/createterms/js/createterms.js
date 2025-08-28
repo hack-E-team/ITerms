@@ -116,14 +116,20 @@ function attachEventListenersToForm(form) {
         adjustDropdownPosition(dropdownMenu);
     });
 
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            const selected = Array.from(checkboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.value);
-            selectedTagsDisplay.textContent = selected.length > 0 ? selected.join(', ') : 'タグを選択...';
-        });
-    });
+    const updateSelectedNames = () => {
+        const names = Array.from(checkboxes)
+          .filter(cb => cb.checked)
+          .map(cb => (cb.closest('label')?.querySelector('span')?.textContent || '').trim())
+          .filter(Boolean);
+        // 多すぎる場合は省略（任意）
+        const MAX = 5;
+        selectedTagsDisplay.textContent =
+          names.length === 0 ? 'タグを選択...' :
+          names.length <= MAX ? names.join(', ') :
+          `${names.slice(0, MAX).join(', ')} … 他${names.length - MAX}件`;
+    };
+    checkboxes.forEach(cb => cb.addEventListener('change', updateSelectedNames));
+    updateSelectedNames();
 
     // プルダウンメニューの外側をクリックしたら閉じる
     document.addEventListener('click', (e) => {

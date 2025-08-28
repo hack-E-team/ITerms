@@ -29,6 +29,7 @@ h1 {
     position: relative;
     width: 100%;
     gap: 8px;
+    white-space: nowrap;
 }
 
 .search-icon {
@@ -42,27 +43,42 @@ h1 {
     z-index: 2;
 }
 
-.tag-select {
+.search-form {
     width: 100%;
-    padding: 8px 12px 8px 32px;
-    border: 1px solid #ccc;
+    padding: 8px 32px;
     border-radius: 8px;
     font-size: 16px;
     background: #fff;
-    appearance: none;
-    position: relative;
+    appearance: none; 
+    position: relative; 
     z-index: 1;
 }
 
-.select-arrow {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #333;
+.search-form input {
+    width: 85%;
+    border: none;
+    outline: none;
     font-size: 16px;
-    pointer-events: none;
-    z-index: 2;
+}
+
+.flashcard-list {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.search-submit{
+    align-self: flex-end;
+    padding: 4px 12px;
+    background: #399ACA;
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .flashcard-list {

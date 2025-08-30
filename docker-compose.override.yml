@@ -1,5 +1,5 @@
 services:
-  web:
+  django:
     build:
       context: .
       dockerfile: infra/docker/django/Dockerfile.dev
@@ -7,16 +7,19 @@ services:
     env_file:
       - .env.dev
     volumes:
-      - ./:/iterms
+      - .:/iterms
     ports:
       - "8000:8000"
     depends_on:
       - db
-    working_dir: /iterms/app
-    command: ["/wait-for-it.sh", "db:3306", "--", "sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+    working_dir: /iterms
+    command: |
+      /wait-for-it.sh "${DB_HOST:-db}":3306 -t 60 -- sh -c "python app/manage.py migrate && python app/manage.py runserver 0.0.0.0:8000"
+    networks:
+      - app_network
 
   db:
-    image: mysql:8.0
+    image: mysql:8.4
     container_name: mysql_dev
     env_file:
       - .env.dev
@@ -25,6 +28,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     restart: always
+    networks:
+      - app_network
 
 volumes:
   mysql_data:
+
+networks:
+  app_network:

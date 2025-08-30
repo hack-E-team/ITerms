@@ -1,0 +1,176 @@
+/* ====================
+メインコンテンツ (モバイル)
+==================== */
+main {
+    padding: 16px;
+    padding-top: 0;
+}
+
+h1 {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    text-align: left;
+    color: #fff;
+    font-size: 24px;
+    margin: 0;
+    padding: 16px;
+    background-color: #399ACA;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.term-form {
+    background: #399ACA;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    padding: 24px;
+    margin-top: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: -32px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.term-form input::placeholder,
+.term-form textarea::placeholder {
+    color: #000;
+    font-style: italic;
+}
+
+.term-form input,
+.term-form textarea,
+.term-form select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #f9f9f9;
+    resize: none;
+}
+
+.add-btn {
+    align-self: flex-end;
+    padding: 10px 32px;
+    background: #399ACA;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.add-btn:hover {
+    background: #007bff;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 56px;
+}
+
+.register-btn {
+    padding: 10px 32px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.register-btn:hover {
+    background: #218838;
+}
+
+.custom-select-container {
+    position: relative;
+    font-size: 16px;
+}
+
+.selected-tags {
+    padding: 8px 12px;
+    background: #f9f9f9;
+    cursor: pointer;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0 0 8px 8px;
+    z-index: 1100;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-menu.show {
+    display: block;
+    border-radius: 8px;
+    background-color: #eeeeee;
+}
+
+.dropdown-menu label {
+    display: block;
+    padding: 12px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.dropdown-menu label:hover {
+    background: #cccccc;
+}
+
+.dropdown-menu input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* 選択されたタグの視覚的なフィードバック */
+.dropdown-menu label input[type="checkbox"]:checked + span {
+    font-weight: bold;
+    color: #399ACA;
+}
+
+.remove-form-btn {
+    background: #ff6666;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: -16px;
+}
+.remove-form-btn:hover {
+    background: #cc0000;
+}

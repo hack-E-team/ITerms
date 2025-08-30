@@ -1,0 +1,51 @@
+{# templates/accounts/login.html #}
+{% extends 'common/base.html' %}
+{% load static %}
+{% block header %}
+<div class="div-login-header">
+  <div class="logo-container">
+    <img src="{% static 'common/img/ITerm-logo.png' %}" alt="ITerms Logo" class="header-logo">
+  </div>
+  <div class="div-register-button">
+    <a class="register-button" href="{% url 'accounts:signup' %}">無料登録</a>
+  </div>
+</div>
+{% endblock %}
+{% block main_content %}
+<div class="main-body">
+  <div class="main-content">
+    <div class="title-section">
+      <img src="{% static 'common/img/ITerm-main.png' %}" alt="ITerms Main" class="main-image">
+    </div>
+
+    <div class="form-section">
+      <h2 class="form-title">ログイン</h2>
+
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <form action="{% url 'accounts:login' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <input type="email" name="email" id="email" placeholder="メールアドレス" required>
+        </div>
+        <div class="form-group">
+          <input type="password" name="password" id="password" placeholder="パスワード" required>
+        </div>
+        <p class="login-button-paragraph">
+          <button type="submit" class="login-button">ログイン</button>
+        </p>
+      </form>
+
+      <p class="password-reset-paragraph">
+        <a href="#" class="password-reset">パスワードをお忘れの方はこちら</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
